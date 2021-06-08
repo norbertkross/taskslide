@@ -1,26 +1,30 @@
+import 'package:async_loader/async_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-import 'package:taskslide/UIs/CreatedProjectsHome/Add-To-Task.dart';
+import 'package:taskslide/UIs/Collaborations/CollaborationTaskEditor.dart';
 import 'package:taskslide/UIs/CreatedProjectsHome/editProjectTitle.dart';
+import 'package:taskslide/state/collaborationState.dart';
 import 'package:taskslide/state/state.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class CreatedProjects extends StatefulWidget {
+class Collaborations extends StatefulWidget {
   @override
-  _CreatedProjectsState createState() => _CreatedProjectsState();
+  _CollaborationsState createState() => _CollaborationsState();
 }
 
-class _CreatedProjectsState extends State<CreatedProjects> {
-
+class _CollaborationsState extends State<Collaborations> {
+final GlobalKey<AsyncLoaderState> _asyncLoaderState = GlobalKey<AsyncLoaderState>();
   double gridItemWidth = 200.0;
   int currentHover = -1;
   double smallDevice = 650.0;
+  bool showBuilder = true;
 
-  final taskState = Get.put(TaskState());
+  final colllaborationState = Get.put(ColllaborationState());
+  final taskState = Get.put(TaskState());  
 
   String giveTime(int index){
-    return timeago.format(DateTime.parse(taskState.allTasks[index]["date-time"]),
+    return timeago.format(DateTime.parse(colllaborationState.collabAllTasks[index]["date-time"]),
     //locale: "en_short",
     );
   }
@@ -42,12 +46,13 @@ dateTimeRangePicker(int index) async {
   );
 
   if(picked != null){
-  taskState.setDateRange(index,start: "${picked.start}",end: "${picked.end}");
+  colllaborationState.setDateRange(index,start: "${picked.start}",end: "${picked.end}");
   }
 }  
 
   @override
   Widget build(BuildContext context) {
+
     Size mq = MediaQuery.of(context).size;
     return Scaffold(
       //backgroundColor: Color(0xffF4F5F7),
@@ -55,19 +60,228 @@ dateTimeRangePicker(int index) async {
             scrollDirection: Axis.horizontal,
             child: SizedBox(
               width: mq.width < smallDevice ? (mq.width + 200) : 1800.0,
-              child: ListView(
-                children: [
-                  
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-            
-        GetBuilder<TaskState>(builder: (builder)=>
-          Wrap(
+              child: NotificationListener<OverscrollIndicatorNotification>(
+              onNotification: (__){
+              __.disallowGlow();
+              return false;
+              },
+        
+         child:Obx(()=>
+           colllaborationState.isEditing.value == false?   ListView(
+           children: [
+                    
+           Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            for(int projectsIndex=0; projectsIndex <= taskState.allTasks.length-1;projectsIndex++)
-            // GetBuilder(builder: (builder)=>
-                Padding(
+              
+            Wrap(
+                children: [
+              showBuilder == true?      
+              AsyncLoader(                
+                key:_asyncLoaderState,
+                // Show error widget when there's  an error
+                renderError:([error])=> Container(
+                    child: SizedBox(
+                      width: mq.width,
+                      child: Column(
+                        children: [
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(top: 40),
+                                child: Text("There was wn error please\ncheck your network and\ntry again",
+                          textAlign: TextAlign.center,                            
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).primaryColor,),                      
+                             ),
+                              ),
+                            ],
+                          ),
+
+                           Wrap(
+                            alignment: WrapAlignment.center,
+                             children: [
+                               
+                               Padding(
+                                 padding: const EdgeInsets.only(top:14.0),
+                                 child: Tooltip(
+                                   message: "Retry",
+                                   child: MouseRegion(
+                                     cursor: SystemMouseCursors.click,
+                                     child: GestureDetector(
+                                       onTap: (){
+                                        //  setState((){ });
+                                       _asyncLoaderState.currentState
+                                        .reloadState()
+                                        .whenComplete(() => print('finished reload'));
+                                       },
+                                       child: Card(
+                                         elevation: 30,
+                                         shape: RoundedRectangleBorder(
+                                           borderRadius: BorderRadius.circular(16.0),
+                                         ),
+                                         color: Theme.of(context).primaryColor,
+                                         child: Padding(
+                                           padding: const EdgeInsets.symmetric(horizontal: 12.0,vertical: 4),
+                                           child: Row(
+                                             mainAxisSize: MainAxisSize.min,
+                                             children: [
+                                               Text("Retry",style: TextStyle(
+                                                 color: Theme.of(context).cardColor,
+                                               ),),
+                                               SizedBox(width: 6,),
+                                               RotatedBox(quarterTurns: 3,
+                                               child: Icon(Icons.refresh_rounded,color: Theme.of(context).cardColor,size: 22,))
+                                             ],
+                                           ),
+                                         ),
+                                       ),
+                                     ),
+                                   ),
+                                 ),
+                               )
+                             ]
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                // Show loader whille data is loading
+                renderLoad: ()=> Container(
+                    child:SizedBox(
+                      width: mq.width,
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 40),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3.0,
+                              backgroundColor: Theme.of(context).cardColor,
+                              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor) ,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                initState:() async => await colllaborationState.getCollaborationsStream(email: 'norbertaberor@gmail.com'),
+                renderSuccess: ({data}){ 
+
+                if(data.length>0){
+                return Wrap(
+                    children:[
+                       for(int projectsIndex=0; projectsIndex <= colllaborationState.collabAllTasks.length-1;projectsIndex++)
+                         taskItem(projectsIndex: projectsIndex),
+                           ],
+                         );
+                }
+
+                else if(data.length==0){
+                  return Container(
+                    child:SizedBox(
+                      width: mq.width,
+                      child: Column(
+                        children: [
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(top: 40),
+                                child: Text("You're currently not part of any project",
+                                style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).primaryColor,),
+                                ),
+                              ),
+                            ],                            
+                          ),
+
+                           Wrap(
+                            alignment: WrapAlignment.center,
+                             children: [
+                               
+                               Padding(
+                                 padding: const EdgeInsets.only(top:14.0),
+                                 child: Tooltip(
+                                   message: "Retry",
+                                   child: MouseRegion(
+                                     cursor: SystemMouseCursors.click,
+                                     child: GestureDetector(
+                                       onTap: (){
+                                        //  setState((){ });
+                                       _asyncLoaderState.currentState
+                                        .reloadState()
+                                        .whenComplete(() => print('finished reload'));
+                                       },
+                                       child: Card(
+                                         elevation: 30,
+                                         shape: RoundedRectangleBorder(
+                                           borderRadius: BorderRadius.circular(16.0),
+                                         ),
+                                         color: Theme.of(context).primaryColor,
+                                         child: Padding(
+                                           padding: const EdgeInsets.symmetric(horizontal: 12.0,vertical: 4),
+                                           child: Row(
+                                             mainAxisSize: MainAxisSize.min,
+                                             children: [
+                                               Text("Retry",style: TextStyle(
+                                                 color: Theme.of(context).cardColor,
+                                               ),),
+                                               SizedBox(width: 6,),
+                                               RotatedBox(quarterTurns: 3,
+                                               child: Icon(Icons.refresh_rounded,color: Theme.of(context).cardColor,size: 22,))
+                                             ],
+                                           ),
+                                         ),
+                                       ),
+                                     ),
+                                   ),
+                                 ),
+                               )
+                             ]
+                            )
+
+                        ],
+                      ),
+                    ) ,
+                  );
+                }
+
+                else{
+                  return Container(
+                    child: SizedBox(
+                      width: mq.width < smallDevice ? (mq.width + 200) : 1800.0,
+                      child: Wrap(
+                        alignment: WrapAlignment.start,
+                        children: [
+                          Text("There Was an error",style: TextStyle(color: Colors.red,fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                 }
+                }):Container(),            
+              ],
+            ),
+          ],
+        ),
+
+                  ],):CollaborationTaskEditor(),
+         ),
+              ),
+                ),),      
+    );
+  }
+
+  Widget taskItem({int projectsIndex}){
+    return Padding(
                 padding:  EdgeInsets.only(
                   top: 8.0,
                   left: currentHover == projectsIndex? 12.0:8.0,
@@ -75,20 +289,22 @@ dateTimeRangePicker(int index) async {
                   right: 8.0,),
                 child: MouseRegion(                          
                  onEnter: (_){
-                   setState(() {
-                      currentHover = projectsIndex;
-                    });
+                   //setState(() {
+                     // currentHover = projectsIndex;
+                    //});
                   },
                   onExit: (_){
-                    setState(() {
-                      currentHover = -1;
-                    });
+                   // setState(() {
+                   //   currentHover = -1;
+                   // });
                   },
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
-                    onTap: (){                                        
-                    taskState.switchCurrentRunningProcess(projectsIndex);
-                    taskState.switchPage(0);
+                    onTap: (){
+                                               
+                    colllaborationState.switchCurrentRunningProcess(projectsIndex);
+                    // taskState.switchPage(0);
+                    colllaborationState.swtichEditingMode();
                   },
                     child: Card(
                       shadowColor: currentHover == projectsIndex? Theme.of(context).primaryColor.withOpacity(.2): Colors.transparent,
@@ -124,7 +340,7 @@ dateTimeRangePicker(int index) async {
                                           context,
                                           child: EditProjectTitle(
                                             index: projectsIndex,
-                                            title: "${taskState.allTasks[projectsIndex]["project-name"]}",),);
+                                            title: "${colllaborationState.collabAllTasks[projectsIndex]["project-name"]}",),);
                                           },
                                           child: Tooltip(
                                             message: "Edit title",
@@ -139,7 +355,7 @@ dateTimeRangePicker(int index) async {
                                     ),
                                   ),
 
-                                        Text("${taskState.allTasks[projectsIndex]["project-name"]}",
+                                        Text("${colllaborationState.collabAllTasks[projectsIndex]["project-name"]}",
                                         style: TextStyle(
                                           color: Theme.of(context).disabledColor.withOpacity(.6),
                                           fontSize: 16.0,
@@ -202,8 +418,8 @@ dateTimeRangePicker(int index) async {
                                                       children: [
                                                     GestureDetector(
                                                       onTap: (){
-                                                        taskState.allTasks.removeAt(projectsIndex);
-                                                        taskState.generateList();
+                                                        colllaborationState.collabAllTasks.removeAt(projectsIndex);
+                                                        colllaborationState.generateList();
                                                         Navigator.pop(context);
                                                       },
                                                       child: MouseRegion(
@@ -298,18 +514,6 @@ dateTimeRangePicker(int index) async {
                     ),
                   ),
                 ),
-              ),
-
-            InputAndAddListButton(),
-            
-              ],
-            ),
-                        ),
-                    ],
-                  ),
-
-                ],),
-                ),),      
-    );
+              );
   }
 }

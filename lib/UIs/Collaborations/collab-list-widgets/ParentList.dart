@@ -2,27 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:taskslide/UIs/Collaborations/Dialogs/CollabCardTitleEditor.dart';
 import 'package:taskslide/UIs/CustomDialogBody/CardTitleEditer.dart';
+import 'package:taskslide/state/collaborationState.dart';
 import 'package:taskslide/state/state.dart';
 
-class MainListItem extends StatefulWidget {
+class CollaborationParentList extends StatefulWidget {
 final String header; 
 final String mainKeys;
 final int nPos;
 
-  const MainListItem({Key key, this.header, this.mainKeys, this.nPos}) : super(key: key);
+  const CollaborationParentList({Key key, this.header, this.mainKeys, this.nPos}) : super(key: key);
 
   @override
-  _MainListItemState createState() => _MainListItemState();
+  _CollaborationParentListState createState() => _CollaborationParentListState();
 }
 
-class _MainListItemState extends State<MainListItem> {
+class _CollaborationParentListState extends State<CollaborationParentList> {
 
   final taskState = Get.put(TaskState());
+  final colllaborationState = Get.put(ColllaborationState());
 
   @override
   Widget build(BuildContext context) {
-    String color = taskState.taskList == null? "#0": taskState.taskList[num.parse(widget.mainKeys)]["color"];
+    String color = colllaborationState.collabTaskList == null? "#0": colllaborationState.collabTaskList[num.parse(widget.mainKeys)]["color"];
 
     return Padding(
       key:ValueKey("${widget.mainKeys}"),
@@ -43,15 +46,15 @@ class _MainListItemState extends State<MainListItem> {
               child: Column(
                 children: [
                        
-                        Container(
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color:color == "#0"? Colors.transparent : taskState.hexToColor(color),
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(10),
-                            ),
-                          ),
-                        ),
+                Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color:color == "#0"? Colors.transparent : taskState.hexToColor(color),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(10),
+                    ),
+                  ),
+                ),
 
                   SizedBox(height: 4.0,),
 
@@ -67,7 +70,7 @@ class _MainListItemState extends State<MainListItem> {
                           Flexible(
                             child: Container(
                               child: 
-                                GetBuilder<TaskState>(builder: (builder)=>
+                                GetBuilder<ColllaborationState>(builder: (builder)=>
                                  Text(taskState.processHeader(widget.header),style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color:Theme.of(context).disabledColor.withOpacity(.6),
@@ -84,16 +87,16 @@ class _MainListItemState extends State<MainListItem> {
                               shape: BoxShape.circle,
                               color: Theme.of(context).disabledColor.withOpacity(.12),
                             ),
-                            child: Center(child: Text("${taskState.taskList[widget.nPos]["sub-children"].length}"),),
+                            child: Center(child: Text("${colllaborationState.collabTaskList[widget.nPos]["sub-children"].length}"),),
                           ),
 
                           GestureDetector(
                             onTap: (){
-                              taskState.editCardClicked(
+                              colllaborationState.editCardClicked(
                                 context,
-                                child: CardTitleEditer(
+                                child: CollabCardTitleEditer(
                                   mainId: widget.mainKeys,
-                                  previousTitle: taskState.taskList[num.parse(widget.mainKeys)]["name"],
+                                  previousTitle: colllaborationState.collabTaskList[num.parse(widget.mainKeys)]["name"],
                                   previousColor:  color,
                                 ),);
                             },
@@ -111,12 +114,11 @@ class _MainListItemState extends State<MainListItem> {
 
                       SizedBox(height: 8.0,),              
 
-
-                      GetBuilder<TaskState>(
+                      GetBuilder<ColllaborationState>(
                         builder: (builder)=>
                         ReorderableColumn(
-                          children: taskState.childrenItems[widget.nPos] != null?
-                            taskState.childrenItems[widget.nPos]: 
+                          children: colllaborationState.collabChildrenItems[widget.nPos] != null?
+                            colllaborationState.collabChildrenItems[widget.nPos]: 
                             (<Widget>[
                             Container(
                               height: 30,
@@ -126,13 +128,10 @@ class _MainListItemState extends State<MainListItem> {
                             ),
                           ]), 
                         onReorder: (int _oldIndex,int _newIndex){
-
-                        taskState.parentReorder(_oldIndex, _newIndex, widget.nPos);
-                        taskState.reorderSubTaskList( widget.nPos,oldIndex: _oldIndex,newIndex: _newIndex,);
-
+                        colllaborationState.parentReorder(_oldIndex, _newIndex, widget.nPos);
+                        colllaborationState.reorderSubTaskList( widget.nPos,oldIndex: _oldIndex,newIndex: _newIndex,);
                     },
             ),),
-
 
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
@@ -142,11 +141,11 @@ class _MainListItemState extends State<MainListItem> {
                           children: [
 
 
-                             GetBuilder<TaskState>(
+                             GetBuilder<ColllaborationState>(
                                builder: (builder)=>
                                 GestureDetector(
                                  onTap:(){
-                                     taskState.hasFinishedProject(num.parse(widget.mainKeys));
+                                     colllaborationState.hasFinishedProject(num.parse(widget.mainKeys));
                                    },
                                  child: Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -159,10 +158,10 @@ class _MainListItemState extends State<MainListItem> {
                                         height: 23,
                                         decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(6),
-                                          color:taskState.taskList[num.parse(widget.mainKeys)]['done'] == true?Color(0xff12ec24).withOpacity(.15) :Theme.of(context).disabledColor.withOpacity(.06),
+                                          color:colllaborationState.collabTaskList[num.parse(widget.mainKeys)]['done'] == true?Color(0xff12ec24).withOpacity(.15) :Theme.of(context).disabledColor.withOpacity(.06),
                                          ),
                                         child:Icon(Icons.done_rounded,size: 20.0,
-                                        color:taskState.taskList[num.parse(widget.mainKeys)]['done'] == true?Color(0xff12ec24).withOpacity(.5) : Theme.of(context).disabledColor.withOpacity(.08),),
+                                        color:colllaborationState.collabTaskList[num.parse(widget.mainKeys)]['done'] == true?Color(0xff12ec24).withOpacity(.5) : Theme.of(context).disabledColor.withOpacity(.08),),
                                         ),
                                     ),
                                   ),
@@ -173,7 +172,7 @@ class _MainListItemState extends State<MainListItem> {
                             GestureDetector(
                               onTap: (){    
                                //setState(() {
-                                 taskState.clickedParentAddNew(widget.mainKeys);                        
+                                 colllaborationState.clickedParentAddNew(widget.mainKeys);                        
                               //});                             
                                
                               },

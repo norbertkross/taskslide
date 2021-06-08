@@ -43,7 +43,7 @@ String get input => controller.text;
                         cursorColor: Theme.of(context).primaryColor.withOpacity(.5),
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText: "New Task",
+                          hintText: "New Project",
                           hintStyle: TextStyle(
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context).disabledColor.withOpacity(.3),
@@ -129,13 +129,13 @@ String get input => controller.text;
               child: Padding(
                 padding: const EdgeInsets.only(top:10.0),
                 child: Tooltip(
-                  message: "new Task",
+                  message: "new project",
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
-                    child: Card(
-                    
-                    shadowColor: MediaQuery.of(context).size.width < 650.0?null:Colors.transparent,
-                    elevation: MediaQuery.of(context).size.width < 650.0? 12.0:2.0,                            
+                    child: Card(            
+                     shadowColor: Theme.of(context).primaryColor.withOpacity(.25),         
+                    //shadowColor: MediaQuery.of(context).size.width < 650.0?null:Colors.transparent,
+                    elevation: MediaQuery.of(context).size.width < 650.0? 12.0:16.0,                            
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5.0),
                       ),

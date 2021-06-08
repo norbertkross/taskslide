@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taskslide/UIs/Collaborations/Collaborations.dart';
 import 'package:taskslide/UIs/CreatedProjectsHome/CreatedProjects.dart';
 import 'package:taskslide/UIs/CustomDialogBody/CustomBodyDialog.dart';
 import 'package:taskslide/UIs/chat/ChatHomeScreen.dart';
@@ -12,7 +14,20 @@ import 'package:taskslide/UIs/List-Items/Input-Child-Items.dart';
 import 'package:taskslide/UIs/List-Items/Main-List-Items.dart';
 import 'dart:convert';
 
+// Importing this with prefix to fix multiple packages error
+import 'package:dio/dio.dart' as packageDio;
+
+// SOCKET.IO client
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart';
+import 'package:taskslide/state/BaseUrl.dart';
+
 class TaskState extends GetxController{
+
+  @override
+  void onInit(){
+    connectAndListen();
+  }
 
   // DECLARSRIONS   
 
@@ -40,16 +55,17 @@ var offlineMode = false.obs;
 
 var currentRunningProjectId = 0.obs;
 
+var subChildrenPopUpIndex = -1..obs;
+
+var childListCurrentTouchParentKey = -1..obs;
+
+
 List<Widget> currentPage = [
     
     TaskDragDrop(),
     CalenderAndDetails(),
     ChatHomeScreen(),
-    Container(
-      color: Colors.blue,
-      width: 500,
-      height: 500,
-    ),
+    Collaborations(),
     CreatedProjects(),
 ];
 
@@ -57,49 +73,46 @@ var currentHomePageIndex = 4.obs;
 
 var closeMediumBar = false.obs;
 
+var messageQue = [].obs;
+
+var isSavingProject = false.obs;
+
+  IO.Socket socket = IO.io( BaseUrl.baseUrl,
+      IO.OptionBuilder()
+       .setTransports(['websocket']).build());
+
+
+/// METHODS
+
 /// Construct a color from a hex code string, of the format #RRGGBB.
 Color hexToColor(String code) {
-
   if(code.length >2){
-    //print("Big Code: $code");
 return Color(int.parse(code.substring(1, code.length), radix: 16) + 0xFF000000);
   }else{
-     //print("Smaller Code: $code");
 return Color(int.parse(code.substring(1, 2), radix: 16) + 0xFF000000);
 
   }
 }
 
-  // METHODS
-  
+
 void setRedorder(int oldIndex,int newIndex){
         if(oldIndex != items.length-1 && newIndex != items.length-1){
         Widget row = items.removeAt(oldIndex);
         items.insert(newIndex, row);
 
         // // Reorder Main List
-
-
         var holder;
-
-        // var holdOld = taskList[oldIndex];
-
-        // var holdNew = taskList[newIndex];
 
         holder = taskList[oldIndex];
         taskList[oldIndex] = taskList[newIndex];
         taskList[newIndex] = holder;
-        // holdOld = holdNew;
-        // holdNew = holdOld;
-
-        // print("Type of Changed: ${taskList.runtimeType}");
-        // //List changed = taskList.removeAt(oldIndex);
-        // var changed = taskList.removeAt(oldIndex);
-        // print("Type of Changed: ${changed.runtimeType}");
-        // taskList.insert(newIndex, changed);
         generateList();
         update();
-      } 
+        sendTaskToServer();
+      }
+
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}       
   }  
 
 void addParentCard(String label){
@@ -111,6 +124,7 @@ var cardData =
      "color": "#0",
      "name":"$label",
      "sub-children":[],
+     'done':false,
    };
 
     taskList.add(cardData);
@@ -174,7 +188,7 @@ void generateList({bool isInit}){
       if(taskList[n]["sub-children"].length == 0){
            children.add(
              InputChildItems(key: UniqueKey(),thisParentId: n.toString())
-          );
+          ); 
       }       
                                 
       childrenItems.insert(n, children);
@@ -203,7 +217,7 @@ void generateList({bool isInit}){
                key:UniqueKey(),
              )
             );
-         }
+          }
 
   // I want the method to only run if its not 
   // being called when the app is being Initialized
@@ -215,12 +229,35 @@ void generateList({bool isInit}){
 
 }
 
+void hasFinishedProject(int parentid,){
+
+  if(taskList[parentid]['done'] == true){
+      taskList[parentid]['done'] = false;
+    }else{
+      taskList[parentid]['done'] = true;
+  }  
+  update();
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}
+
+ }
+
+void addToDescription({String comment,int parent,int childkey}){
+  taskList[parent]["sub-children"][childkey]["description"] = comment;
+  generateList();
+
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}
+
+}
+
 //void populateTasksList(){
 //   
 // }
 
 void switchPage(int page){
      currentHomePageIndex.value = page;
+     update();
   }
 
 
@@ -281,21 +318,17 @@ void parentReorder(_oldIndex,_newIndex,nPos){
 
 void reorderSubTaskList(int nthMain,{oldIndex,newIndex}){
 
-          var holder;
+      var holder;
 
-        // var holdOld = taskList[oldIndex];
-
-        // var holdNew = taskList[newIndex];
-
-        holder = taskList[nthMain]["sub-children"][oldIndex];
-        taskList[nthMain]["sub-children"][oldIndex] = taskList[nthMain]["sub-children"][newIndex];
-        taskList[nthMain]["sub-children"][newIndex] = holder;
-
-  // List newTaskList = taskList[nthMain]["sub-children"].removeAt(oldIndex);
-  // taskList[nthMain]["sub-children"].insert(newIndex,newTaskList);
+    holder = taskList[nthMain]["sub-children"][oldIndex];
+    taskList[nthMain]["sub-children"][oldIndex] = taskList[nthMain]["sub-children"][newIndex];
+    taskList[nthMain]["sub-children"][newIndex] = holder;
 
   generateList();
   update();
+
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}
 }
 
 
@@ -307,9 +340,14 @@ void reorderTasklist(_oldIndex,_newIndex,nPos){
 
 void clickedParentAddNew(String mainKeys){
       showChildInput.value = true; 
+      // The index which you want to show this input for
       currentInputIndex.value = "$mainKeys";              
       generateList();  
       //update();
+
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}
+      
 }
 
 void callToAddChildToParent(int maxN,{String header, String description}){
@@ -322,6 +360,9 @@ void callToAddParent(String input){
         showInput.value = false; 
         addParentCard(input); 
         update();
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}
+
 }
 
 void callToCloseParentAddition(){
@@ -340,6 +381,7 @@ void childListClose(){
       generateList();
 }
 
+
 void checkItem(int nth,int subnth){
       if(taskList[nth]["sub-children"][subnth]["state"] == "done"){
       taskList[nth]["sub-children"][subnth]["state"] = "waiting";  
@@ -348,6 +390,10 @@ void checkItem(int nth,int subnth){
       }
       generateList();
       update();
+
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}
+
 }
 
 void editCardClicked(BuildContext context,{Widget child,}){
@@ -358,12 +404,13 @@ void editCardUpdateClick(int index,{String name,String color}){
       taskList[index]["name"] = name;
       taskList[index]["color"]  = color; 
       generateList();
-      update();
+      update();      
 }
 
 void editProjectTitle(int index,String newTitle){
     allTasks[index]["project-name"] = newTitle;
     generateList();  
+    update();
 }
 
 void setDateRange(int index,{String start,String end}){ 
@@ -377,6 +424,10 @@ void deleteParentCardClick(int index){
       taskList.removeAt(index);
       generateList();
       update();
+
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}
+
 }
 
 void editChildCardDetailsClick(int mainIndex,int subIndex,{String name,String color}){
@@ -384,12 +435,21 @@ void editChildCardDetailsClick(int mainIndex,int subIndex,{String name,String co
       taskList[mainIndex]["sub-children"][subIndex]["color"] = color; 
       generateList();
       update();
+
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}
+
+      
 }
 
 void deleteChildCardClick(int mainIndex,int subIndex,){
       taskList[mainIndex]["sub-children"].removeAt(subIndex);
       generateList();
       update();
+
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}
+
 }
 
 
@@ -451,6 +511,7 @@ void buildEditDialog(BuildContext context,{Widget child,String mainId,String sub
 
   closeTheMediumBar({bool value}){
     closeMediumBar.value = value ?? !closeMediumBar.value;
+    update();
   }
 
   showInputToCreateTask(bool state){
@@ -459,27 +520,41 @@ void buildEditDialog(BuildContext context,{Widget child,String mainId,String sub
 
 
 
+  void setSubChildrenPopUpIndex(newint,parentkey){
+    subChildrenPopUpIndex = newint;
+    childListCurrentTouchParentKey = parentkey;
+    //generateList();
+    update();
+  }  
+
+
   addNewProject({String name,String time}){
 
-  List newItem = [{
+  List newItem = [
+    {
    "id": 0,
+   "creator":"norbertaberor@gmail.com",
    "project-name":"$name",
    "date-time":"$time",
    "date-start":"",
    "date-end":"",
    "people":[],
    "project-body":[],
-     },
-   ];
+   'done':false,
+    },
+  ];
+
 
     var addMore = {
     "id": allTasks.length,
+    "creator":"norbertaberor@gmail.com",
     "project-name":"$name",
     "date-time":"$time",
     "date-start":"",
     "date-end":"",
-    "people":[],
+    "people":["eugene@mail.yup","johnaturkhim@ymail.nert"],
     "project-body":[],
+    'done':false,
     };
 
    //print("Length of all files: ${allTasks.length}");
@@ -493,4 +568,221 @@ void buildEditDialog(BuildContext context,{Widget child,String mainId,String sub
     //print(allTasks);
     update();
   }
+
+
+  Map<String,dynamic> returnSingleTaskItem(){
+
+   var id = allTasks.length>0?allTasks[currentRunningProjectId.value]["id"].toString():"";
+
+   var creator = allTasks.length>0?allTasks[currentRunningProjectId.value]["creator"].toString():"";
+
+   var projectName =allTasks.length>0?allTasks[currentRunningProjectId.value]["project-name"].toString():"";
+
+   var dateTime = allTasks.length>0?allTasks[currentRunningProjectId.value]["date-time"].toString():"";
+
+   var dateStart = allTasks.length>0? allTasks[currentRunningProjectId.value]["date-start"].toString():"";
+
+   var dateEnd = allTasks.length>0?allTasks[currentRunningProjectId.value]["date-end"].toString():"";
+
+   var people = allTasks.length>0? allTasks[currentRunningProjectId.value]["people"]:"";
+
+   var peopleEncoded = allTasks.length>0?people:"";
+
+   var projectBody = allTasks.length>0? allTasks[currentRunningProjectId.value]["project-body"]:"";
+
+   var projectBodyEncoded =  allTasks.length>0? projectBody:"";
+
+    Map<String,dynamic> queryParams = {
+      "id":id,
+      'creator': creator,
+      'project-name':projectName,
+      'date-time':dateTime,
+      'date-start':dateStart,
+      'date-end':dateEnd,
+      'people': peopleEncoded,
+      'project-body':projectBodyEncoded,  
+      'done':false,
+      };
+
+    return queryParams;
+  }
+
+
+/// HTTP REQUESTS
+
+
+  /// Get All Tasks for this users email
+   getAllMyTask({String email})async{
+    packageDio.Dio dio = packageDio.Dio();
+    var url = BaseUrl.baseUrl +'/mytasks';
+    Map<String,dynamic> queryParams = {
+      "email": email,
+      };
+
+    var response = await dio.post(url,queryParameters: queryParams,);
+    var data = response.data;
+    var check = data[0]["creator"];
+    print(check.runtimeType);
+    //print(data[0]["creator"].runtimeType);      
+   }
+   
+/// Get all Tasks that the user is collaborating in
+   getCollaborations({String email})async{
+    packageDio.Dio dio = packageDio.Dio();
+    var url = BaseUrl.baseUrl+'/collaborations';
+    Map<String,dynamic> queryParams = {
+      "email": email,      
+      };
+
+    var response = await dio.post(url,queryParameters: queryParams,).catchError((err){
+        print(err);
+    });
+    
+    print(response.data); 
+   }
+   
+   
+  /// Get All Tasks for this users email
+   saveWholeProjectOnline({String email})async{
+    packageDio.Dio dio = packageDio.Dio();
+    var url = BaseUrl.baseUrl+'/save-project';
+    Map<String,dynamic> queryParams = {
+      "project": json.encode(allTasks),      
+      };
+
+    var response = await dio.post(url,queryParameters: queryParams,);
+    
+    print(response.data);      
+   }
+
+
+   // SocketIO
+ void connectAndListen(){
+    socket.onConnect((_) {
+     print('connected ...v/');
+    });
+
+   ///When a single task event is recieved from server,
+   ///data is added to the Tasklist Locally
+    socket.on('server_sent_single_task', (data){
+      var dataDecoded = json.decode(data);
+      print("server_sent_single_task");
+      print(dataDecoded);
+    });
+
+
+    /// This user recieves data from the server.The data is from a 
+    /// particular thask room which user has joined with ['join_a_taskroom']
+    socket.on('get_a_taskroom_event', (data){
+      var dataDecoded = json.decode(data);
+      print("get_a_taskroom_event");
+      print(dataDecoded);
+    });
+
+    /// When the Socket has disconnected
+    socket.onDisconnect((_) => print('disconnect'));
+
+}
+
+ /// This would add a User to A collaboration Task room So that user can recieve 
+ /// all event Emitted by the socket to ['get_a_taskroom_event']
+ void joinTaskRoomToUpdateAndSendData({Map<String,dynamic> data,}){
+   socket.emit('join_a_taskroom',json.encode(data),);
+ }
+
+
+ /// Emit the event ['client_sent_task'] so that user listening on
+ /// ['server_sent_single_task'] can recieve it.
+  void emitSingleTask(){
+
+    Map<String,dynamic> queryParams = returnSingleTaskItem();
+
+     socket.emit('client_sent_task',
+     json.encode(queryParams),);      
+
+ }
+
+  void clearMessageQue(){
+      messageQue.clear();
+  }
+
+ // Send task with Acknowledgements
+  void sendTaskToServer(){
+
+    isSavingProject.value = true;
+
+    String id = returnSingleTaskItem()["id"].toString();
+    String dateTime = returnSingleTaskItem()["date-time"].toString();
+    String creator = returnSingleTaskItem()["creator"].toString();
+
+    Map<String, dynamic> newTaskList = returnSingleTaskItem();
+    //newTaskList["ack"] = "$dateTime-$id-$creator";
+    //print(newTaskList);
+
+         socket.emitWithAck('join_a_taskroom',newTaskList,
+        // Ackknowledgement
+        ack: (results){
+          isSavingProject.value = true;
+
+            /// When the server acknowledges that it has recieved this data
+            /// remove this unique details from the [MessagesQue] of item
+            /// which are waiting to be deliverd
+            messageQue.remove(results.toString());
+            print("Messaging Que2 $messageQue");
+          },
+        ); 
+
+        /// This socket request is sent add this inique details to the [MessageQue] list
+        messageQue.add("$dateTime-$id-$creator");
+        print("Messaging Que1: $messageQue");
+        
+  }
+
+ // Send task with Acknowledgements
+  void sendCollaborationTaskToServer(){
+
+    isSavingProject.value = true;
+
+    String id = returnSingleTaskItem()["id"].toString();
+    String dateTime = returnSingleTaskItem()["date-time"].toString();
+    String creator = returnSingleTaskItem()["creator"].toString();
+
+    Map<String, dynamic> newTaskList = returnSingleTaskItem();
+    //newTaskList["ack"] = "$dateTime-$id-$creator";
+    //print(newTaskList);
+
+         socket.emitWithAck('join_a_taskroom',newTaskList,
+        // Ackknowledgement
+        ack: (results){
+          isSavingProject.value = true;
+
+            /// When the server acknowledges that it has recieved this data
+            /// remove this unique details from the [MessagesQue] of item
+            /// which are waiting to be deliverd
+            messageQue.remove(results.toString());
+            print("Messaging Que2 $messageQue");
+          },
+        ); 
+
+        /// This socket request is sent add this inique details to the [MessageQue] list
+        messageQue.add("$dateTime-$id-$creator");
+        print("Messaging Que1: $messageQue");
+        
+  }
+
+  // /addNewTask
+
+/// Store Updates in a database
+  //  sendUpdateData()async{    
+
+
+  //   packageDio.Dio dio = packageDio.Dio();
+  //   var url = BaseUrl.baseUrl+'/addNewTask';
+  //   Map<String,dynamic> queryParams = returnSingleTaskItem();
+
+  //   var response = await dio.post(url,queryParameters: queryParams,);
+    
+  //   print(response.data);
+
+  //  }
 }

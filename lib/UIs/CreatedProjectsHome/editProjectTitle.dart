@@ -34,16 +34,34 @@ class _EditProjectTitleState extends State<EditProjectTitle> {
                   borderRadius: BorderRadius.circular(8.0),
               ),
               child: Container(
-                width: 200.0,
+                width: 220.0,
                 child: Column(
                   children: [
 
                     SizedBox(height: 10),
 
+                    SizedBox(
+                      width: 220,
+                      child: Wrap(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0,right:8.0),
+                            child: Text("Edit title",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 6),
                       child: Container(
-                        height: 35,
+                        height: 33,
                         decoration: BoxDecoration(
                           color: Theme.of(context).disabledColor.withOpacity(.1),
                           borderRadius: BorderRadius.circular(7.0),
@@ -51,7 +69,8 @@ class _EditProjectTitleState extends State<EditProjectTitle> {
                         child: TextField(
                           controller: _controller,
                            decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                            //contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                            contentPadding: EdgeInsets.only(left: 8,right: 8,bottom: 10),//(horizontal: 8.0),
                              hintText: "Title",
                             border: InputBorder.none,
                           ),
@@ -77,7 +96,7 @@ class _EditProjectTitleState extends State<EditProjectTitle> {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
-                            color: Colors.green.withOpacity(.3),
+                            color: Colors.green.withOpacity(.2),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 6),

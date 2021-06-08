@@ -4,37 +4,22 @@ import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:particles_flutter/particles_flutter.dart';
-import 'package:taskslide/UIs/Extras/offline-switch.dart';
 import 'package:taskslide/state/collaborationState.dart';
 import 'package:taskslide/state/state.dart';
 
-class TaskDragDrop extends StatefulWidget {
+class CollaborationTaskEditor extends StatefulWidget {
 
-  const TaskDragDrop({Key key}) : super(key: key);
+  const CollaborationTaskEditor({Key key}) : super(key: key);
   @override
-  _TaskDragDropState createState() => _TaskDragDropState();
+  _CollaborationTaskEditorState createState() => _CollaborationTaskEditorState();
 }
 
-class _TaskDragDropState extends State<TaskDragDrop> {
+class _CollaborationTaskEditorState extends State<CollaborationTaskEditor> {
 
 // DECLARATIONS
   final taskState = Get.put(TaskState());
   final collaborationState = Get.put(ColllaborationState());
-
   double smallDevice = 650.0;
-
-
-// EAEBEE - main body
-// F4F5F7 - Items cards body
-// E6E7E7 - circle avatar colo
-// FEFFFE - Card color
-
-
-// @override
-// void initState() { 
-//   super.initState();
-//   //print(taskState.currentRunningProjectId);
-// }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +29,7 @@ class _TaskDragDropState extends State<TaskDragDrop> {
         children: [
          
          MediaQuery.of(context).size.width < smallDevice ? Container(
-            width: MediaQuery.of(context).size.width,
+            width: mq.width,
             child: Padding(
               padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top),
               child: Wrap(
@@ -52,7 +37,7 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                 Padding(
                   padding: EdgeInsets.only(left: 12.0,right: 12.0,),
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
+                    width: mq.width,
                     child: Wrap(
                       alignment: WrapAlignment.spaceBetween,
                       crossAxisAlignment: WrapCrossAlignment.center,
@@ -62,8 +47,10 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                           cursor: SystemMouseCursors.click,
                           child: GestureDetector(
                             onTap: (){taskState.switchPage(4);},
-                            child: Icon(Icons.home_rounded,size:30,
-                            color: Theme.of(context).primaryColor),),),                      
+                            child: RotatedBox(quarterTurns: 2,
+                              child: Icon(Icons.arrow_right_alt_rounded,size:30,
+                              color: Theme.of(context).primaryColor),
+                            ),),),                      
 
                       Wrap(       
                         crossAxisAlignment: WrapCrossAlignment.center,                
@@ -163,25 +150,8 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                           tooltip: "People",
                           icon: Icon(
                             Icons.people,size: 27,color: Theme.of(context).disabledColor,), 
-                          onPressed: (){ }
+                          onPressed: (){}
                           ),                                                            
-                          SizedBox(width: 16,),
-
-                          Tooltip(
-                            message: "Online Sync",
-                            child: MouseRegion(
-                              cursor:SystemMouseCursors.click,
-                              child: Obx(() =>
-                                WSRectSwitch(
-                                  activeColor: Theme.of(context).primaryColor,
-                                  value: taskState.offlineMode.value,
-                                  onChanged: (_){
-                                    taskState.setOfflineMode(_);
-                                  },
-                                ),
-                              ),
-                            ),
-                          ), 
                           SizedBox(width: 12,),
                         Obx(()=>
                         (taskState.offlineMode.value == true) 
@@ -193,7 +163,23 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                                  cursor: SystemMouseCursors.click,
                                  child: GestureDetector(
                                    onTap: (){
-                                     taskState.sendTaskToServer();
+                                     if(taskState.currentHomePageIndex.value == 3){
+                                      /// You're editing a collaboration project                                      
+                                          if(collaborationState.isEditing.value == true){
+                                            /// The User is editing a collaborative project
+                                          }else{
+                                            /// The User is in collaboratione page but not editing a single task
+                                          }
+
+                                     }else if(taskState.currentHomePageIndex.value == 0){
+                                      /// You're editing a user project                                      
+                                          if(taskState.currentHomePageIndex.value == 0){
+                                              // editing a single project item 
+                                              //taskState.sendTaskToServer();
+                                          }else{
+                                            // in the homepage 
+                                          }
+                                     }
                                    },
                                    child: Container(
                                     child: Text("Save",style: TextStyle(
@@ -212,10 +198,11 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                              ),
                            ):Container(),
                         ),
-                                                                                                             
+                                                  
+                          SizedBox(width: 16,),
+
                         ],
                       ),
-
                       ],
                     ),
                   ),
@@ -223,42 +210,40 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                 ],
               ),
             ),
-            ):Container(
-              child: SizedBox(
-                width: mq.width,
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
+            ):Row(
+              children: [
+                Container(
+                  child: SizedBox(
+                    width: mq.width,
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      children: [
+                        SizedBox(width: 12,),
+                        Tooltip(
+                          message: "Home",
+                          child: GestureDetector(
+                            onTap: (){
+                              //taskState.closeTheMediumBar();
+                              collaborationState.swtichEditingMode(value: false);
+                            },
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child:RotatedBox(quarterTurns: 2,
+                              child: Icon(Icons.arrow_right_alt_rounded,size:30,
+                              color: Theme.of(context).primaryColor),
+                            ),
 
-                    Tooltip(
-                      message: "Hide/Show Panel",
-                      child: GestureDetector(
-                        onTap: (){
-                           taskState.closeTheMediumBar();
-                        },
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: Obx(()=>Icon(
-                            taskState.closeMediumBar.value == false?Icons.chevron_left_rounded: Icons.chevron_right_rounded,
-                            size: 30,
-                            color: Theme.of(context).primaryColor,))),
-                        ),
+                              // Icon(Icons.arrow_back,
+                              //   size: 30,
+                              //   color: Theme.of(context).primaryColor,),
+                                ),
+                            ),
+                        ),                 
+                      ],
                     ),
-                    SizedBox(width: 8,),
-                    Padding(
-                    padding:EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top,left: 8.0),
-                    child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                    onTap: (){taskState.switchPage(4);},
-                    child: Icon(Icons.home_rounded,size:30,
-                    color: Theme.of(context).primaryColor),
-                     ),
-                    ),
-                   ),                  
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
             
           Flexible(
@@ -307,17 +292,17 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                                     children: [
                                           Container(
                                             child:                                      
-                                            GetBuilder<TaskState>(
+                                            GetBuilder<ColllaborationState>(
                                             builder: (builder)=>
                                              ReorderableWrap(
                                               children:
-                                             taskState.items != null?
-                                               taskState.items: 
+                                             collaborationState.collabItems != null?
+                                               collaborationState.collabItems: 
                                                (<Widget>[
                                                 Container(                                
                                                   key: UniqueKey(),),
                                               ]), 
-                                              onReorder:taskState.setRedorder
+                                              onReorder:collaborationState.setRedorder
                                               ),
                                              ),
                                            ),                          

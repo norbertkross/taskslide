@@ -1,8 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.taskslide">
    <application
-        android:label="taskslide"
-        android:icon="@mipmap/ic_launcher">
+        android:label="Taskslide"
+        android:icon="@mipmap/launcher_icon"
+        android:usesCleartextTraffic="true"
+        >
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

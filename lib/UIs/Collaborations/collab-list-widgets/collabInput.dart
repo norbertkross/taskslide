@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:taskslide/state/collaborationState.dart';
 import 'package:taskslide/state/state.dart';
 
-class InputChildItems extends StatefulWidget {
+class CollaborationInputChildItems extends StatefulWidget {
   final String thisParentId;
 
-  const InputChildItems({Key key, this.thisParentId}) : super(key: key);
+  const CollaborationInputChildItems({Key key, this.thisParentId}) : super(key: key);
 
   @override
-  _InputChildItemsState createState() => _InputChildItemsState();
+  _CollaborationInputChildItemsState createState() => _CollaborationInputChildItemsState();
 }
 
-class _InputChildItemsState extends State<InputChildItems> {
+class _CollaborationInputChildItemsState extends State<CollaborationInputChildItems> {
   final childTaskState = Get.put(TaskState()); 
+  final colllaborationState = Get.put(ColllaborationState()); 
 
   final TextEditingController subChildHeaderController = TextEditingController();
   String get subChildHeaderInput => subChildHeaderController.text; 
 
   final TextEditingController subChildDescriptionController = TextEditingController();
   String get subChildDescriptionInput => subChildDescriptionController.text; 
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +31,7 @@ class _InputChildItemsState extends State<InputChildItems> {
         Obx(()=>
           Column(      
           children: [
-            childTaskState.showChildInput.value == true && childTaskState.currentInputIndex.value ==  widget.thisParentId?
+            colllaborationState.showChildInput.value == true && colllaborationState.currentInputIndex.value ==  widget.thisParentId?
             Card(
               shadowColor: Colors.transparent,
               elevation: 20.0,
@@ -146,7 +145,7 @@ class _InputChildItemsState extends State<InputChildItems> {
                                   // showChildInput = false;   
                                   // generateList(taskList); 
                                   // });
-                                  childTaskState.childListClose();
+                                  colllaborationState.childListClose();
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -166,7 +165,7 @@ class _InputChildItemsState extends State<InputChildItems> {
                                     //print(subChildHeaderInput);
                                     int pid = num.parse(widget.thisParentId);
                                                                                                                                                                                
-                                    childTaskState.callToAddChildToParent(
+                                    colllaborationState.callToAddChildToParent(
                                       pid,
                                       header: subChildHeaderInput,
                                       description:subChildDescriptionInput,

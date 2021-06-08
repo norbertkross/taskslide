@@ -1,33 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-import 'package:taskslide/UIs/CustomDialogBody/CardTitleEditer.dart';
+import 'package:taskslide/UIs/Collaborations/Dialogs/CollabCardTitleEditor.dart';
+import 'package:taskslide/UIs/Collaborations/Dialogs/descriptionCollabDialog.dart';
 import 'package:taskslide/UIs/CustomDialogBody/commentDescription.dart';
+import 'package:taskslide/state/collaborationState.dart';
 import 'package:taskslide/state/state.dart';
 
-class CardWidget extends StatefulWidget {
+class CollaborationChildList extends StatefulWidget {
   final String header; 
   final String childkey;
   final String parentKey; 
   final String state;
 
-  const CardWidget({Key key, this.header, this.childkey, this.parentKey, this.state}) : super(key: key);
+  const CollaborationChildList({Key key, this.header, this.childkey, this.parentKey, this.state}) : super(key: key);
   
   @override
-  _CardWidgetState createState() => _CardWidgetState();
+  _CollaborationChildListState createState() => _CollaborationChildListState();
 }
 
-class _CardWidgetState extends State<CardWidget> {
+class _CollaborationChildListState extends State<CollaborationChildList> {
   final childTaskState = Get.put(TaskState());
+  final colllaborationState = Get.put(ColllaborationState());
+
   bool confirmDelete = false;
 
   @override
   Widget build(BuildContext context) {
-    String color = childTaskState.taskList[num.parse(widget.parentKey)]["sub-children"] == null? "#0":  childTaskState.taskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["color"];
+    String color = colllaborationState.collabTaskList[num.parse(widget.parentKey)]["sub-children"] == null? "#0":  colllaborationState.collabTaskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["color"];
     return Stack(
       children: [
-        Column(   
-        //key: ValueKey("${widget.childkey}/k/${widget.parentKey}"), 
+        Column(
           children: [                 
           MouseRegion(
           cursor: SystemMouseCursors.click,
@@ -69,7 +72,7 @@ class _CardWidgetState extends State<CardWidget> {
                                 //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
 
-                              GetBuilder<TaskState>(
+                              GetBuilder<ColllaborationState>(
                               builder: (builder)=>      
                               Row(
                                 children: [
@@ -79,12 +82,12 @@ class _CardWidgetState extends State<CardWidget> {
 
                                     int parentId = num.parse(widget.parentKey);
                                     int childId =  num.parse(widget.childkey);
-                                    childTaskState.checkItem(parentId,childId);
+                                    colllaborationState.checkItem(parentId,childId);
                                     
                                     },
                                     child: MouseRegion(
                                       cursor: SystemMouseCursors.click,
-                                      child: GetBuilder<TaskState>(builder: (builder)=>
+                                      child: GetBuilder<ColllaborationState>(builder: (builder)=>
                                          Container(
                                           height: 17.0,
                                           width: 17.0,
@@ -92,10 +95,10 @@ class _CardWidgetState extends State<CardWidget> {
                                             borderRadius: BorderRadius.circular(4.0),
                                             border: Border.all(
                                               width: 1.5,
-                                              color: childTaskState.taskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["state"] == "done"?Theme.of(context).primaryColor : Theme.of(context).disabledColor.withOpacity(.15)),
+                                              color: colllaborationState.collabTaskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["state"] == "done"?Theme.of(context).primaryColor : Theme.of(context).disabledColor.withOpacity(.15)),
                                           ),
                                           child: Center(
-                                            child:childTaskState.taskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["state"] == "done"? Icon(
+                                            child:colllaborationState.collabTaskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["state"] == "done"? Icon(
                                             Icons.done,
                                             size: 15,color: Theme.of(context).primaryColor,
                                             ) : Container(),),
@@ -113,7 +116,7 @@ class _CardWidgetState extends State<CardWidget> {
                                 child: 
                                 Text(widget.header ?? "Task",
                                 style: TextStyle(
-                                  decoration:childTaskState.taskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["state"] == "done"? TextDecoration.lineThrough: TextDecoration.none,
+                                  decoration:colllaborationState.collabTaskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["state"] == "done"? TextDecoration.lineThrough: TextDecoration.none,
                                 ),
                                ),
                             ),
@@ -125,15 +128,16 @@ class _CardWidgetState extends State<CardWidget> {
                                   cursor: SystemMouseCursors.click,
                                   child: GestureDetector(
                                     onTap: (){
-                                      childTaskState.setSubChildrenPopUpIndex(num.parse(widget.childkey),num.parse(widget.parentKey),);
+                                      colllaborationState.setSubChildrenPopUpIndex(num.parse(widget.childkey),num.parse(widget.parentKey));
                                     },
                                     child: Icon(Icons.more_vert_rounded,size: 18.0,color: Theme.of(context).disabledColor.withOpacity(.2),)),),),
                                     // child: Icon(Icons.edit,size: 18.0,color: Theme.of(context).disabledColor.withOpacity(.2),)),),),
                                 ),
                               ],
                             ),
-
+                        
                         SizedBox(height: 8.0,),
+                        
                         ],
                       ),
                     ),
@@ -147,10 +151,10 @@ class _CardWidgetState extends State<CardWidget> {
           ],
         ),
 
-      GetBuilder<TaskState>(builder: (builder)=>
-       num.parse(widget.childkey) == childTaskState.subChildrenPopUpIndex
+      GetBuilder<ColllaborationState>(builder: (builder)=>
+       num.parse(widget.childkey) == colllaborationState.subChildrenPopUpIndex
        &&
-       num.parse(widget.parentKey) == childTaskState.childListCurrentTouchParentKey
+       num.parse(widget.parentKey) == colllaborationState.childListCurrentTouchParentKey
        ?  
          Card(
            elevation: 20,
@@ -173,7 +177,7 @@ class _CardWidgetState extends State<CardWidget> {
                           cursor: SystemMouseCursors.click,
                           child: GestureDetector(
                             onTap: (){
-                              childTaskState.setSubChildrenPopUpIndex(-1,-1);
+                              colllaborationState.setSubChildrenPopUpIndex(-1,-1);
                             },
                             child: Container(
                               child: Icon(Icons.close,color: Theme.of(context).primaryColor,)),
@@ -185,12 +189,12 @@ class _CardWidgetState extends State<CardWidget> {
                   SizedBox(height: 4,),
                   GestureDetector(
                     onTap: (){
-                      childTaskState.setSubChildrenPopUpIndex(-1,-1);
-                      childTaskState.editCardClicked(context,
-                      child: CardTitleEditer(
+                      colllaborationState.setSubChildrenPopUpIndex(-1,-1);
+                      colllaborationState.editCardClicked(context,
+                      child: CollabCardTitleEditer(
                         mainId: widget.parentKey,
                         subId: widget.childkey,
-                        previousTitle: childTaskState.taskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["name"],
+                        previousTitle: colllaborationState.collabTaskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["name"],
                         previousColor: color,
                       ),);                    
                     },
@@ -228,11 +232,11 @@ class _CardWidgetState extends State<CardWidget> {
 
                   GestureDetector(
                     onTap: (){
-                      childTaskState.setSubChildrenPopUpIndex(-1,-1);
-                      childTaskState.buildEditDialog(
+                      colllaborationState.setSubChildrenPopUpIndex(-1,-1);
+                      colllaborationState.buildEditDialog(
                       context,
-                      child: CommentDescription(
-                        comment: childTaskState.taskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["description"],
+                      child: CollabCommentDescription(
+                        comment: colllaborationState.collabTaskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["description"],
                         parent: widget.parentKey,
                         childKey: widget.childkey,
                       ),
@@ -313,8 +317,8 @@ class _CardWidgetState extends State<CardWidget> {
 
                               // null if you're editing main list
                               //if(widget.subId != null){
-                                childTaskState.setSubChildrenPopUpIndex(-1,-1);
-                                childTaskState.deleteChildCardClick(num.parse(widget.parentKey),num.parse(widget.childkey),);
+                                colllaborationState.setSubChildrenPopUpIndex(-1,-1);
+                                colllaborationState.deleteChildCardClick(num.parse(widget.parentKey),num.parse(widget.childkey),);
                               
                               // }else{
                               //   taskState.deleteParentCardClick(num.parse(widget.mainId),);

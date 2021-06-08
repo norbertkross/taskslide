@@ -1,0 +1,6 @@
+http package clear text exception if using 'http/localhost'
+
+flutter_file_picker configuration for macOS
+
+socket_io_client network client trafic exception for macOS
+[https://github.com/google/flutter-desktop-embedding/blob/master/macOS-Security.md]

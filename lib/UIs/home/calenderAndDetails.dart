@@ -18,12 +18,18 @@ class _CalenderAndDetailsState extends State<CalenderAndDetails> {
   Widget build(BuildContext context) {
     Size mq = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Projects Overview"),
-      ),
+      // appBar: AppBar(
+      //   title: Text("Projects Overview"),
+      // ),
       body:Column(        
         children: [
-         SizedBox(height: 1,),
+         SizedBox(height: 8,),
+         Text("Projects overview",style: TextStyle(
+           color: Theme.of(context).primaryColor,
+           fontSize: 20,
+           fontWeight: FontWeight.bold,
+         ),),
+         SizedBox(height: 16,),
           Flexible(
             child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -52,6 +58,26 @@ class _CalenderAndDetailsState extends State<CalenderAndDetails> {
                               ),
                             ],
                           )),
+
+
+                              taskState.allTasks.length<=0?                                               
+                              SizedBox(
+                                height: 20,
+                                width: mq.width,
+                                child: Wrap(
+                                  alignment: WrapAlignment.center,
+                                  children: [
+                                    Text("You have not created any projects yet.",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),),
+                                  ],
+                                ),
+                              ):Container(),
+
                       ],
                     ),
               ],

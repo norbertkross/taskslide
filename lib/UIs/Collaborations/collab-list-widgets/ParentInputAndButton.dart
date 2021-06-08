@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:taskslide/state/collaborationState.dart';
 import 'package:taskslide/state/state.dart';
 
-class InputAndButton extends StatefulWidget {
-  const InputAndButton({Key key,}) : super(key: key);
+class CollaborationParentInputAndButton extends StatefulWidget {
+  const CollaborationParentInputAndButton({Key key,}) : super(key: key);
   @override
-  _InputAndButtonState createState() => _InputAndButtonState();
+  _CollaborationParentInputAndButtonState createState() => _CollaborationParentInputAndButtonState();
 }
 
-class _InputAndButtonState extends State<InputAndButton> {
+class _CollaborationParentInputAndButtonState extends State<CollaborationParentInputAndButton> {
 final taskState = Get.put(TaskState());
+final colllaborationState = Get.put(ColllaborationState());
   
 final TextEditingController controller = TextEditingController();
 String get input => controller.text; 
 
-
   @override
   Widget build(BuildContext context) {
-    return  Container(
+    return Container(
       key: UniqueKey(),
       child: Obx(()=>
          Container(
-          child:  taskState.showInput.value == true?
+          child: colllaborationState.showInput.value == true?
           Padding(
             padding: const EdgeInsets.only(top:8.0),
             child: Wrap(
@@ -58,7 +59,7 @@ String get input => controller.text;
                   child: GestureDetector(
                     onTap: (){
                      if(input.trim().isNotEmpty){
-                        taskState.callToAddParent(input);
+                        colllaborationState.callToAddParent(input);
                         controller.clear();
                       }                                                  
                     },
@@ -92,7 +93,7 @@ String get input => controller.text;
                       // showInput = false;    
                       // generateList(taskList);              
                       // });
-                      taskState.callToCloseParentAddition();
+                      colllaborationState.callToCloseParentAddition();
                 },
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
@@ -109,8 +110,7 @@ String get input => controller.text;
           :
           GestureDetector(
             onTap: (){
-                taskState.addToParentButton();
-                
+                colllaborationState.addToParentButton();                
             },
             child: Padding(
               padding: const EdgeInsets.only(top:10.0),

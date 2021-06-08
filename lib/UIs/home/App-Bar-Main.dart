@@ -71,37 +71,49 @@ class _AppBarMainState extends State<AppBarMain> {
                         children: [
                           Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0), 
-                          child: IconButton(
-                            tooltip: "Home",
-                            icon: Icon(Icons.home,color: Theme.of(context).canvasColor,), 
-                            onPressed:(){taskState.switchPage(4);taskState.closeTheMediumBar(value: true);}
+                          child: GreyOutActivePage(
+                              iconIndex: 4,
+                            child: IconButton(
+                              tooltip: "Home",
+                              icon: Icon(Icons.home,color: Theme.of(context).canvasColor,), 
+                              onPressed:(){taskState.switchPage(4);taskState.closeTheMediumBar(value: true);}
+                              ),
+                          ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: GreyOutActivePage(
+                              iconIndex: 1,
+                              child: IconButton(
+                                tooltip: "Calender",
+                                icon: Icon(Icons.date_range_outlined,color: Theme.of(context).canvasColor,), 
+                              onPressed:(){taskState.switchPage(1);taskState.closeTheMediumBar(value: true);}
+                              ),
                             ),
                           ),
 
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: IconButton(
-                              tooltip: "Calender",
-                              icon: Icon(Icons.date_range_outlined,color: Theme.of(context).canvasColor,), 
-                            onPressed:(){taskState.switchPage(1);taskState.closeTheMediumBar(value: true);}
+                            child:GreyOutActivePage(
+                              iconIndex: 2,
+                              child: IconButton(
+                                tooltip: "Chat",
+                                icon: Icon(Icons.mark_chat_read_rounded,color: Theme.of(context).canvasColor,), 
+                              onPressed:(){taskState.switchPage(2);taskState.closeTheMediumBar(value: true);}
+                              ),
                             ),
                           ),
 
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: IconButton(
-                              tooltip: "Chat",
-                              icon: Icon(Icons.mark_chat_read_rounded,color: Theme.of(context).canvasColor,), 
-                            onPressed:(){taskState.switchPage(2);taskState.closeTheMediumBar(value: true);}
-                            ),
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: IconButton(
-                            tooltip: "Colab",
-                            icon: Icon(Icons.account_tree_rounded,color: Theme.of(context).canvasColor,), 
-                            onPressed:(){taskState.switchPage(3);taskState.closeTheMediumBar(value: true);}
+                            child:GreyOutActivePage(
+                              iconIndex: 3,
+                              child: IconButton(
+                              tooltip: "Collab",
+                              icon: Icon(Icons.account_tree_rounded,color: Theme.of(context).canvasColor,), 
+                              onPressed:(){taskState.switchPage(3);taskState.closeTheMediumBar(value: true);}
+                              ),
                             ),
                           ),
 
@@ -111,6 +123,37 @@ class _AppBarMainState extends State<AppBarMain> {
                    ),
                  ),
               ),),
+    );
+  }
+}
+
+
+
+class GreyOutActivePage extends StatefulWidget {
+  final int iconIndex; 
+  final Widget child; 
+  const GreyOutActivePage({ Key key, this.iconIndex, this.child }) : super(key: key);
+
+  @override
+  _GreyOutActivePageState createState() => _GreyOutActivePageState();
+}
+
+class _GreyOutActivePageState extends State<GreyOutActivePage> {
+  final taskState = Get.put(TaskState());
+  @override
+  Widget build(BuildContext context) {
+    return Obx(()
+        => Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color:taskState.currentHomePageIndex.value == widget.iconIndex?
+           Theme.of(context).canvasColor.withOpacity(.45):Colors.transparent,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(6.0),
+          child: widget.child,
+        ),
+      ),
     );
   }
 }

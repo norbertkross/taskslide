@@ -1,43 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:taskslide/state/collaborationState.dart';
 import 'package:taskslide/state/state.dart';
 
-class CardTitleEditer extends StatefulWidget {
+class CollabCardTitleEditer extends StatefulWidget {
   final String previousTitle;
   final String  previousColor;
   final String mainId;
   final String subId;
 
-  const CardTitleEditer({Key key, this.previousTitle, this.previousColor ="#9E9F9F", this.mainId, this.subId,}) : super(key: key);
+  const CollabCardTitleEditer({Key key, this.previousTitle, this.previousColor ="#9E9F9F", this.mainId, this.subId,}) : super(key: key);
 
   @override
-  _CardTitleEditerState createState() => _CardTitleEditerState();
+  _CollabCardTitleEditerState createState() => _CollabCardTitleEditerState();
 }
 
-class _CardTitleEditerState extends State<CardTitleEditer> {
+class _CollabCardTitleEditerState extends State<CollabCardTitleEditer> {
 
   TextEditingController _controller = TextEditingController(text: "");
 
   final taskState = Get.put(TaskState());
+  final colllaborationState = Get.put(ColllaborationState());
 
-List<String> colors = [
-  // Color(0xFFE81E62),
-  // Color(0xFFFEEA3B),
-  // Color(0xFF9D26B0),
-  // Color(0xFF3F51B5),
-  // Color(0xFF0cec17),
-  // Color(0xFFf77e12),  
-  // Color(0xFF02A8F4),
-  // Color(0xFFFF9800),
-  // Color(0xFFFE5622),
-  // Color(0xFF4DAE50),
-  // Color(0xFFF44237),
-  // Color(0xFF9E9F9F),
-  // Colors.transparent,
-  
-
-
+ List<String> colors = [
   "#E81E62",
   "#0FEEA3B",
   "#09D26B0",
@@ -93,7 +79,8 @@ bool confirmDelete = false;
 
 
                     // null if you're editing main list
-                  if(widget.subId == null)    
+                  if(widget.subId == null)   
+
                     confirmDelete != true? MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: Padding(
@@ -124,9 +111,9 @@ bool confirmDelete = false;
 
                             // null if you're editing main list
                             if(widget.subId != null){
-                              taskState.deleteChildCardClick(num.parse(widget.mainId),num.parse(widget.subId),);
+                              colllaborationState.deleteChildCardClick(num.parse(widget.mainId),num.parse(widget.subId),);
                             }else{
-                              taskState.deleteParentCardClick(num.parse(widget.mainId),);
+                              colllaborationState.deleteParentCardClick(num.parse(widget.mainId),);
                             }
                             
                             Navigator.pop(context);
@@ -376,14 +363,14 @@ bool confirmDelete = false;
 
                                         // null if you're editing main list   
                                         if(widget.subId != null){
-                                          taskState.editChildCardDetailsClick(
+                                          colllaborationState.editChildCardDetailsClick(
                                             num.parse(widget.mainId),
                                             num.parse(widget.subId),
                                             name: _controller.text.toString(),
                                             color: chosenColor,
                                           );
                                         }else{
-                                        taskState.editCardUpdateClick(
+                                        colllaborationState.editCardUpdateClick(
                                           num.parse(widget.mainId), 
                                           name: _controller.text.toString(),
                                           color: chosenColor,                                           

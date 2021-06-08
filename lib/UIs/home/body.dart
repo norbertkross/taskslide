@@ -69,7 +69,7 @@ class _BodyState extends State<Body> {
                   mq.width >= smallDevices?  AppBarMain() : Container(),
 
                 // Second Medium Side bar
-                 Obx(()=> taskState.currentHomePageIndex.value == 4 || taskState.closeMediumBar.value == true? Container() :  
+                 GetBuilder<TaskState>(builder:(builder)=> taskState.currentHomePageIndex.value == 4 || taskState.closeMediumBar.value == true? Container() :  
                  mq.width > smallDevices? Card(
                   elevation: 30.0,
                   shadowColor: Theme.of(context).primaryColor,
@@ -79,7 +79,8 @@ class _BodyState extends State<Body> {
                   height: mq.height,
                   color: Theme.of(context).cardColor,
                   child:MediumBar(),
-                ),):Container(),),
+                 ),
+                ):Container(),),
 
                     ],
                   ), 
@@ -87,11 +88,12 @@ class _BodyState extends State<Body> {
 
                 //Body Of Tasks Lists
                 //Obx(()=>
+                GetBuilder<TaskState>(builder: (builder)=>
                    Container(
                     width: (mq.width - (mq.width > smallDevices?((taskState.currentHomePageIndex.value ==4 || taskState.closeMediumBar.value == true?0.0:250.0)+70.0+65.0): (0.0) )),
                     height: mq.height,
-                    child: Obx(()=>taskState.currentPage[taskState.currentHomePageIndex.value]),                                      
-                  ),
+                    child: taskState.currentPage[taskState.currentHomePageIndex.value],                                      
+                  ),),
                 //),
 
                 // Third Small Side Bar           
@@ -112,41 +114,53 @@ class _BodyState extends State<Body> {
           children: [
               Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0), 
-              child: IconButton(
-                tooltip: "Home",
-                icon: Icon(Icons.category_rounded,color: Theme.of(context).canvasColor,), 
-                onPressed:(){taskState.switchPage(0);}
+              child: GreyOutActivePage(
+                iconIndex: 4,
+                child: IconButton(
+                  tooltip: "Home",
+                  icon: Icon(Icons.category_rounded,color: Theme.of(context).canvasColor,), 
+                  onPressed:(){taskState.switchPage(4);}
+                  ),
+              ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child:GreyOutActivePage(
+                  iconIndex: 1,
+                  child: IconButton(
+                    tooltip: "Calender",
+                    icon: Icon(Icons.date_range_outlined,color: Theme.of(context).canvasColor,), 
+                  onPressed:(){taskState.switchPage(1);}
+                  ),
                 ),
               ),
 
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: IconButton(
-                  tooltip: "Calender",
-                  icon: Icon(Icons.date_range_outlined,color: Theme.of(context).canvasColor,), 
-                onPressed:(){taskState.switchPage(1);}
+                child:GreyOutActivePage(
+                  iconIndex: 2,
+                  child: IconButton(
+                    tooltip: "Chat",
+                    icon: Icon(Icons.mark_chat_read_rounded,color: Theme.of(context).canvasColor,), 
+                  onPressed:(){taskState.switchPage(2);}
+                  ),
                 ),
               ),
 
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: IconButton(
-                  tooltip: "Chat",
-                  icon: Icon(Icons.mark_chat_read_rounded,color: Theme.of(context).canvasColor,), 
-                onPressed:(){taskState.switchPage(2);}
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: IconButton(
-                tooltip: "Colab",
-                icon: Icon(Icons.account_tree_rounded,color: Theme.of(context).canvasColor,), 
-                onPressed:(){taskState.switchPage(3);}
+                child: GreyOutActivePage(
+                  iconIndex: 3,
+                  child: IconButton(
+                  tooltip: "Collab",
+                  icon: Icon(Icons.account_tree_rounded,color: Theme.of(context).canvasColor,), 
+                  onPressed:(){taskState.switchPage(3);}
+                  ),
                 ),
               ),
           ],
         );
-  }
+      }
 
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:taskslide/UIs/Extras/offline-switch.dart';
+import 'package:taskslide/state/collaborationState.dart';
 import 'package:taskslide/state/state.dart';
 class SecondaryAppBar extends StatefulWidget {
   @override
@@ -10,6 +11,7 @@ class SecondaryAppBar extends StatefulWidget {
 
 class _SecondaryAppBarState extends State<SecondaryAppBar> {
   final taskState = Get.put(TaskState());
+  final colllaborationState = Get.put(ColllaborationState());
   double smallDevices = 650.0;
   @override
   Widget build(BuildContext context) {
@@ -56,7 +58,23 @@ class _SecondaryAppBarState extends State<SecondaryAppBar> {
                         tooltip: "People",
                         icon: Icon(
                           Icons.people,color: Theme.of(context).disabledColor,), 
-                        onPressed: (){}
+                        onPressed: (){
+                          //taskState.sendUpdateData();
+                          // taskState.joinTaskRoomToUpdateAndSendData(
+                          //   data: taskState.returnSingleTaskItem());
+                          //taskState.emitSingleTask();
+                          //taskState.saveWholeProjectOnline();
+                           //taskState.sendUpdateData();
+                           //taskState.getAllMyTask(email: "norbertaberor@gmail.com");
+                          //taskState.getCollaborations(email: "eugene@mail.yup");
+                         // taskState.emitWithAcknowledgement();
+                          // taskState.hasInternetConnection().then((value) => {
+                          //   print("Connection State: $value")
+                          // }).catchError((onError)=>{
+                          //   print(onError)
+                          // });
+
+                          }
                         ),
 
                         SizedBox(height: 10,),
@@ -149,7 +167,56 @@ class _SecondaryAppBarState extends State<SecondaryAppBar> {
                           ),
                         ),
                         ),
-                          //),                        
+                          
+                        Obx(()=>
+                        (taskState.offlineMode.value == true) 
+                        || (taskState.currentHomePageIndex.value == 3 && colllaborationState.isEditing.value == true)?
+                           Obx(()=>
+                              Tooltip(
+                               message:taskState.messageQue.isNotEmpty? "Save Project" :"Already Saved",
+                               child: MouseRegion(
+                                 cursor: SystemMouseCursors.click,
+                                 child: GestureDetector(
+                                   onTap: (){
+                                     if(taskState.currentHomePageIndex.value == 3){
+                                      /// You're editing a collaboration project                                      
+                                          if(colllaborationState.isEditing.value == true){
+                                            /// The User is editing a collaborative project
+                                          }else{
+                                            /// The User is in collaboratione page but not editing a single task
+                                          }
+
+                                     }else if(taskState.currentHomePageIndex.value == 0){
+                                      /// You're editing a user project                                      
+                                          if(taskState.currentHomePageIndex.value == 0){
+                                              // editing a single project item 
+                                              taskState.clearMessageQue();
+                                              taskState.sendTaskToServer();
+                                          }else{
+                                            // in the homepage 
+                                          }
+                                     }
+                                   },
+                                   child: Container(
+                                    child: Obx(()=>
+                                      Text(taskState.isSavingProject.value == true? "saving...": "Save",style: TextStyle(
+                                        color: Theme.of(context).cardColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),),
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 12,vertical: 6,  ),
+                                    decoration: BoxDecoration(
+                                      color: taskState.messageQue.length != 0? Color(0xff5cdd41):
+                                      Theme.of(context).disabledColor.withOpacity(.1),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                          ),
+                                 ),
+                               ),
+                             ),
+                           ):Container(),
+                        ),
+                        //),                        
                       ],
                     ),
                   ],

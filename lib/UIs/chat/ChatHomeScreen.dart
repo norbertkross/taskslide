@@ -34,7 +34,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                           fontWeight: FontWeight.bold,
                         ),),
                       ),
-                      ),                  
+                    ),                  
                   Flexible(
                     child: ListView(
                       children: [
