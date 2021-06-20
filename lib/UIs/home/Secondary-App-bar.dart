@@ -199,7 +199,7 @@ class _SecondaryAppBarState extends State<SecondaryAppBar> {
                                    },
                                    child: Container(
                                     child: Obx(()=>
-                                      Text(taskState.isSavingProject.value == true? "saving...": "Save",style: TextStyle(
+                                      Text(taskState.isSavingProject.value == true? "saving": "Save",style: TextStyle(
                                         color: Theme.of(context).cardColor,
                                         fontWeight: FontWeight.bold,
                                       ),),

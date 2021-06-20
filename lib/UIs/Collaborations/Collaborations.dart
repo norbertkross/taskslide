@@ -305,6 +305,10 @@ dateTimeRangePicker(int index) async {
                     colllaborationState.switchCurrentRunningProcess(projectsIndex);
                     // taskState.switchPage(0);
                     colllaborationState.swtichEditingMode();
+
+                    /// Join a socketio room when someone hits a collaboration room
+                    colllaborationState.joinTaskRoom();
+                    
                   },
                     child: Card(
                       shadowColor: currentHover == projectsIndex? Theme.of(context).primaryColor.withOpacity(.2): Colors.transparent,

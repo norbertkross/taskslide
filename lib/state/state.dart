@@ -21,7 +21,6 @@ import 'package:dio/dio.dart' as packageDio;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:taskslide/state/BaseUrl.dart';
-
 class TaskState extends GetxController{
 
   @override
@@ -73,6 +72,10 @@ var currentHomePageIndex = 4.obs;
 
 var closeMediumBar = false.obs;
 
+// User messaging que
+var userMessageQue = [].obs;
+
+// Collaboration
 var messageQue = [].obs;
 
 var isSavingProject = false.obs;
@@ -107,9 +110,8 @@ void setRedorder(int oldIndex,int newIndex){
         taskList[oldIndex] = taskList[newIndex];
         taskList[newIndex] = holder;
         generateList();
-        update();
-        sendTaskToServer();
-      }
+        update();   
+    }
 
   // Send Updates to server if the user has turned on online sync
   if(offlineMode.value == true){sendTaskToServer();}       
@@ -130,6 +132,7 @@ var cardData =
     taskList.add(cardData);
           generateList();
 }
+
 
 void addChildToParent(int maxN,{String header, String description}){
   // A Task Child Item
@@ -268,14 +271,8 @@ void switchPage(int page){
    SharedPreferences prefs = await SharedPreferences.getInstance();
     try{
       var myToJson = jsonEncode(allTasks);
-      // var myToJson = jsonEncode(myAllItems);
-      await prefs.setString('main-list', myToJson); 
-         //print(myToJson) ;
-  
-    }catch (e){
-     // print(e);
-   }
-   // print("...saved new data to diskly");
+      await prefs.setString('main-list', myToJson);   
+    }catch (e){}
  }
 
  void storeLocalValuesFromProjectHome()async{
@@ -286,7 +283,7 @@ void switchPage(int page){
         //print(myToJson) ;
   
     }catch (e){
-      //print(e);
+      print(e);
    }
  }
 
@@ -354,6 +351,8 @@ void callToAddChildToParent(int maxN,{String header, String description}){
       showChildInput.value = false;       
       addChildToParent(maxN,header: header,description: description);  
       update();
+  // Send Updates to server if the user has turned on online sync
+  if(offlineMode.value == true){sendTaskToServer();}      
 }
 
 void callToAddParent(String input){
@@ -659,7 +658,7 @@ void buildEditDialog(BuildContext context,{Widget child,String mainId,String sub
    // SocketIO
  void connectAndListen(){
     socket.onConnect((_) {
-     print('connected ...v/');
+     print('...:::: connected ::::...');
     });
 
    ///When a single task event is recieved from server,
@@ -667,15 +666,6 @@ void buildEditDialog(BuildContext context,{Widget child,String mainId,String sub
     socket.on('server_sent_single_task', (data){
       var dataDecoded = json.decode(data);
       print("server_sent_single_task");
-      print(dataDecoded);
-    });
-
-
-    /// This user recieves data from the server.The data is from a 
-    /// particular thask room which user has joined with ['join_a_taskroom']
-    socket.on('get_a_taskroom_event', (data){
-      var dataDecoded = json.decode(data);
-      print("get_a_taskroom_event");
       print(dataDecoded);
     });
 
@@ -706,9 +696,8 @@ void buildEditDialog(BuildContext context,{Widget child,String mainId,String sub
       messageQue.clear();
   }
 
- // Send task with Acknowledgements
+ // single CLIENT Send task with Acknowledgements
   void sendTaskToServer(){
-
     isSavingProject.value = true;
 
     String id = returnSingleTaskItem()["id"].toString();
@@ -719,55 +708,48 @@ void buildEditDialog(BuildContext context,{Widget child,String mainId,String sub
     //newTaskList["ack"] = "$dateTime-$id-$creator";
     //print(newTaskList);
 
-         socket.emitWithAck('join_a_taskroom',newTaskList,
+         socket.emitWithAck('client_sent_task',newTaskList,
         // Ackknowledgement
         ack: (results){
-          isSavingProject.value = true;
+          isSavingProject.value = false;
+
+            var timeStamp = results[0]['date-time'].toString();
+            var rid = results[0]['id'].toString();
+            var rcreator = results[0]['creator'].toString();
+            String messageIdToRemoveFromQue = "$timeStamp-$rid-$rcreator";
+
 
             /// When the server acknowledges that it has recieved this data
             /// remove this unique details from the [MessagesQue] of item
             /// which are waiting to be deliverd
-            messageQue.remove(results.toString());
-            print("Messaging Que2 $messageQue");
+            userMessageQue.removeWhere((element)=> element == messageIdToRemoveFromQue);
+            //print("User2 MQ: $userMessageQue");
+
+            // Update the data In the user localDatabase
+              storeValuesLocally(results!=null && results == [] && results.length>0 ?
+              results[0]["project-body"]:[]);
           },
         ); 
 
         /// This socket request is sent add this inique details to the [MessageQue] list
-        messageQue.add("$dateTime-$id-$creator");
-        print("Messaging Que1: $messageQue");
-        
+        userMessageQue.add("$dateTime-$id-$creator");      
+        print("User1 MQ: $userMessageQue");        
   }
 
- // Send task with Acknowledgements
-  void sendCollaborationTaskToServer(){
+  void setIsSaving(bool state){
+    isSavingProject.value = state;
+  }
 
-    isSavingProject.value = true;
-
-    String id = returnSingleTaskItem()["id"].toString();
-    String dateTime = returnSingleTaskItem()["date-time"].toString();
-    String creator = returnSingleTaskItem()["creator"].toString();
-
-    Map<String, dynamic> newTaskList = returnSingleTaskItem();
-    //newTaskList["ack"] = "$dateTime-$id-$creator";
-    //print(newTaskList);
-
-         socket.emitWithAck('join_a_taskroom',newTaskList,
-        // Ackknowledgement
-        ack: (results){
-          isSavingProject.value = true;
-
-            /// When the server acknowledges that it has recieved this data
-            /// remove this unique details from the [MessagesQue] of item
-            /// which are waiting to be deliverd
-            messageQue.remove(results.toString());
-            print("Messaging Que2 $messageQue");
-          },
-        ); 
-
-        /// This socket request is sent add this inique details to the [MessageQue] list
-        messageQue.add("$dateTime-$id-$creator");
-        print("Messaging Que1: $messageQue");
-        
+  void addRemoveFromMessageQue(String value,{bool rm = false}){
+    /// Performs an addition by default 
+    /// performs a remove if rm == true
+      if(rm == true){
+        // Remove
+        userMessageQue.removeWhere((element)=> element == value);
+      }else{
+        // Add to que
+        userMessageQue.add(value);
+      }
   }
 
   // /addNewTask

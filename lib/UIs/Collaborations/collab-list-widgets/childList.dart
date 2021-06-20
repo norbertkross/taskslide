@@ -114,11 +114,13 @@ class _CollaborationChildListState extends State<CollaborationChildList> {
                             ),
                               Flexible(
                                 child: 
-                                Text(widget.header ?? "Task",
-                                style: TextStyle(
-                                  decoration:colllaborationState.collabTaskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["state"] == "done"? TextDecoration.lineThrough: TextDecoration.none,
-                                ),
+                                GetBuilder<ColllaborationState>(builder: (builder)=>
+                                  Text(widget.header ?? "Task",
+                                  style: TextStyle(
+                                    decoration:colllaborationState.collabTaskList[num.parse(widget.parentKey)]["sub-children"][num.parse(widget.childkey)]["state"] == "done"? TextDecoration.lineThrough: TextDecoration.none,
+                                  ),
                                ),
+                                ),
                             ),
 
                              //showPencil == true && selectedId =="$key/sid/$parentKey"?  
@@ -129,6 +131,7 @@ class _CollaborationChildListState extends State<CollaborationChildList> {
                                   child: GestureDetector(
                                     onTap: (){
                                       colllaborationState.setSubChildrenPopUpIndex(num.parse(widget.childkey),num.parse(widget.parentKey));
+                                      colllaborationState.setIsEditingProject(true);
                                     },
                                     child: Icon(Icons.more_vert_rounded,size: 18.0,color: Theme.of(context).disabledColor.withOpacity(.2),)),),),
                                     // child: Icon(Icons.edit,size: 18.0,color: Theme.of(context).disabledColor.withOpacity(.2),)),),),
@@ -178,6 +181,7 @@ class _CollaborationChildListState extends State<CollaborationChildList> {
                           child: GestureDetector(
                             onTap: (){
                               colllaborationState.setSubChildrenPopUpIndex(-1,-1);
+                              colllaborationState.setIsEditingProject(false);
                             },
                             child: Container(
                               child: Icon(Icons.close,color: Theme.of(context).primaryColor,)),
@@ -279,6 +283,7 @@ class _CollaborationChildListState extends State<CollaborationChildList> {
                         setState(() {
                           confirmDelete = ! confirmDelete;                      
                       });
+                    colllaborationState.setIsEditingProject(true);
                     },
                     child: MouseRegion(
                       cursor:SystemMouseCursors.click,
@@ -315,16 +320,9 @@ class _CollaborationChildListState extends State<CollaborationChildList> {
                              GestureDetector(
                               onTap: (){
 
-                              // null if you're editing main list
-                              //if(widget.subId != null){
                                 colllaborationState.setSubChildrenPopUpIndex(-1,-1);
                                 colllaborationState.deleteChildCardClick(num.parse(widget.parentKey),num.parse(widget.childkey),);
-                              
-                              // }else{
-                              //   taskState.deleteParentCardClick(num.parse(widget.mainId),);
-                              // }
-                              
-                              //Navigator.pop(context);
+                                colllaborationState.setIsEditingProject(false);
                           },
                           child: MouseRegion(
                             cursor: SystemMouseCursors.click,
@@ -342,6 +340,7 @@ class _CollaborationChildListState extends State<CollaborationChildList> {
                                 setState(() {
                                 confirmDelete = false;                                
                                 });
+                                colllaborationState.setIsEditingProject(false);
                               },
                               child: MouseRegion(
                                 cursor: SystemMouseCursors.click,
