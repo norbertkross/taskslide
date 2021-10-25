@@ -11,21 +11,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
 
-// static Map<int, Color> color = {
-// 50: Color.fromRGBO(10, 171, 32, .1),
-// 100: Color.fromRGBO(10, 171, 32, .2),
-// 200: Color.fromRGBO(10, 171, 32, .3),
-// 300: Color.fromRGBO(10, 171, 32, .4),
-// 400: Color.fromRGBO(10, 171, 32, .5),
-// 500: Color.fromRGBO(10, 171, 32, .6),
-// 600: Color.fromRGBO(10, 171, 32, .7),
-// 700: Color.fromRGBO(10, 171, 32, .8),
-// 800: Color.fromRGBO(10, 171, 32, .9),
-// 900: Color.fromRGBO(10, 171, 32, 1),
-// };
-
-// final MaterialColor colorCustom = MaterialColor(0xFF0aab20, color);
-
 static Map<int, Color> color = {
 50: Color.fromRGBO(26, 79, 247, .1),
 100: Color.fromRGBO(26, 79, 247, .2),
@@ -39,21 +24,8 @@ static Map<int, Color> color = {
 900: Color.fromRGBO(26, 79, 247, 1),
 };
 
-// static Map<int, Color> color = {
-// 50: Color.fromRGBO(52, 30, 255, .1),
-// 100: Color.fromRGBO(52, 30, 255, .2),
-// 200: Color.fromRGBO(52, 30, 255, .3),
-// 300: Color.fromRGBO(52, 30, 255, .4),
-// 400: Color.fromRGBO(52, 30, 255, .5),
-// 500: Color.fromRGBO(52, 30, 255, .6),
-// 600: Color.fromRGBO(52, 30, 255, .7),
-// 700: Color.fromRGBO(52, 30, 255, .8),
-// 800: Color.fromRGBO(52, 30, 255, .9),
-// 900: Color.fromRGBO(52, 30, 255, 1),
-// };
 
 final MaterialColor colorCustom = MaterialColor(0xFF1a4ff7, color);
-//final MaterialColor colorCustom = MaterialColor(0xFF341EFF, color);
 
   final taskState = Get.put(TaskState());
 
@@ -68,9 +40,7 @@ final MaterialColor colorCustom = MaterialColor(0xFF1a4ff7, color);
         darkTheme: ThemeData(
           brightness: Brightness.dark,
           primaryColor: Color(0xFF1a4ff7),
-          //primaryColor: Color(0xFF341EFF),
           primaryColorDark: Color(0xFF1a4ff7),
-          //primaryColorDark: Color(0xFF341EFF),          
           ), 
 
         theme: ThemeData(

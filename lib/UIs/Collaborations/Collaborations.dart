@@ -40,9 +40,8 @@ dateTimeRangePicker(int index) async {
       end:DateTime(
           DateTime.now().year, 
           DateTime.now().month, 
-          DateTime.now().day+3),
-      
-    ),
+          DateTime.now().day+3),      
+     ),
   );
 
   if(picked != null){
@@ -90,7 +89,7 @@ dateTimeRangePicker(int index) async {
                             children: [
                               Padding(
                                 padding: EdgeInsets.only(top: 40),
-                                child: Text("There was wn error please\ncheck your network and\ntry again",
+                                child: Text("There was an error please\ncheck your network and\ntry again",
                           textAlign: TextAlign.center,                            
                           style: TextStyle(
                             fontSize: 18,
