@@ -2,6 +2,7 @@ const TaskModel = require('../../../models/TaskModel')
 
 function getCollaboration(req,res){
     var userEmail = req.query.email;
+    // console.log(userEmail);    
     TaskModel.find(
         {       
             // Or Query

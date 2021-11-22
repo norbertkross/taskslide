@@ -4,3 +4,35 @@ flutter_file_picker configuration for macOS
 
 socket_io_client network client trafic exception for macOS
 [https://github.com/google/flutter-desktop-embedding/blob/master/macOS-Security.md]
+
+    {
+   "id": 0,
+   "creator":"norbertaberor@gmail.com",
+   "project-name":"$name",
+   "date-time":"$time",
+   "date-start":"",
+   "date-end":"",
+   "people":[],
+   "project-body":[
+  {
+     "id":"${taskList.length}",
+     "color": "#0",
+     "name":"$label",
+     "sub-children":[{
+         "id":"${taskList[maxN]["sub-children"].length}",
+         "color": "#0",
+         "state":"waiting",  
+         "name":"$header",
+         "description":"$description",
+         "people":[
+           {"person-id":"id110",
+            "profile-pic":"",
+           }
+         ]
+       }],
+     'done':false,
+   }       
+   ],
+   'done':false,
+    },
+;

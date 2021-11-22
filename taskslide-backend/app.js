@@ -23,8 +23,9 @@ const newChatMessage = require('./All-Routes/chat/sendChatMessage');
 const readMessages = require('./All-Routes/chat/getMessages');
 const collaborationsIamIn = require('./All-Routes/chat/collaborationsIamIn');
 
-mongoose.connect(process.env.MONGO_DB_CONNECTION,{ useNewUrlParser: true,useUnifiedTopology: true },()=>{
-    console.log(`Connected To DB Succesfully @ : ${process.env.MONGO_DB_CONNECTION}`);
+mongoose.connect(process.env.MONGO_DB_CONNECTION.toString(),{ useNewUrlParser: true,useUnifiedTopology: true,},(error)=>{
+   console.log("The connection erro",error); 
+   console.log(`Connected To DB Succesfully @ : ${process.env.MONGO_DB_CONNECTION}`);
 })
 
 
