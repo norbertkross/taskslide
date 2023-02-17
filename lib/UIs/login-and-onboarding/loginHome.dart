@@ -187,12 +187,12 @@ class _LoginEmailPasswordState extends State<LoginEmailPassword> {
                             userInputText(
                                 controllerType: ControllerType
                                     .loginUsernameController, // loginUsernameController,
-                                hintText: "  Email / username",
+                                hintText: "Email / username",
                                 leading: Icon(Icons.email)),
                             userInputText(
                                 controllerType: ControllerType
                                     .passwordController, //passwordController,
-                                hintText: "  Password",
+                                hintText: "Password",
                                 leading: Icon(Icons.lock),
                                 isPassword: true,
                                 dint: 1),
@@ -247,17 +247,17 @@ class _LoginEmailPasswordState extends State<LoginEmailPassword> {
                             userInputText(
                                 controllerType: ControllerType
                                     .usernameController, // usernameController,
-                                hintText: "  Username",
+                                hintText: "Username",
                                 leading: Icon(Icons.person)),
                             userInputText(
                                 controllerType: ControllerType
                                     .emailController, // emailController,
-                                hintText: "  Email",
+                                hintText: "Email",
                                 leading: Icon(Icons.email)),
                             userInputText(
                                 controllerType: ControllerType
                                     .passwordController, // passwordController,
-                                hintText: "  Password",
+                                hintText: "Password",
                                 leading: Icon(Icons.lock),
                                 isPassword: true,
                                 dint: 0),
@@ -380,7 +380,7 @@ class _LoginEmailPasswordState extends State<LoginEmailPassword> {
       child: TextField(
         controller: updateText(controllerType),
         onChanged: (_) {
-          updateText(controllerType, theUpdate: _);
+         // updateText(controllerType, theUpdate: _);
         },
         obscureText: isPassword != null
             ? dint == 1
@@ -419,9 +419,12 @@ class _LoginEmailPasswordState extends State<LoginEmailPassword> {
   }
 
   loginUser() {
-    if (loginUsernameController.text.isNotEmpty &&
-        emailController.text.isNotEmpty) {
-      taskState.setUserEmailasID(email, context);
+    if (
+      true
+      // loginUsernameController.text.isNotEmpty &&
+      //   emailController.text.isNotEmpty
+        ) {
+      taskState.setUserEmailasID("test@taskslide.com", context);
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (builder) => Body()));
     } else {

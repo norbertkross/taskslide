@@ -4,7 +4,9 @@ const TaskModel = require('../../models/TaskModel');
 const collaborationsIamIn = express.Router();
 
 collaborationsIamIn.post("/collaborations_i_am_in",(req,res)=>{
-    var userEmail = req.query.userEmail || "none"
+    var body = req.body
+    var userEmail = body.userEmail || "none"
+    
     TaskModel.find(
         {       
           // Or Query

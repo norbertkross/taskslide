@@ -5,6 +5,8 @@ import 'package:taskslide/UIs/home/body.dart';
 import 'package:taskslide/UIs/login-and-onboarding/loginHome.dart';
 import 'package:taskslide/state/state.dart';
 
+import 'UIs/home/taskDragDrop.dart';
+
 void main() {
   runApp(GetMaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
 }
@@ -57,12 +59,26 @@ class MyApp extends StatelessWidget {
                             ? MediaQuery.of(context).size.width * .15
                             : MediaQuery.of(context).size.width * .35
                         : 0.0),
+                // child: LoginEmailPassword(),
                 child: LoginEmailPassword(),
+                // child: TaskDragDrop(),
               ),
-              // Body(),
+
+            //  home: Body(),
               //TaskDragDrop(),
             )
           : Container(),
     );
   }
 }
+
+// clipboard-list
+// home
+// list-checks
+// users
+// user
+// pencil
+// calendar-range
+// trash-2
+// moon
+// sun

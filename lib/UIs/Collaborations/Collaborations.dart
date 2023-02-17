@@ -1,12 +1,14 @@
 import 'package:async_loader/async_loader.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:taskslide/UIs/Collaborations/CollaborationTaskEditor.dart';
 import 'package:taskslide/UIs/CreatedProjectsHome/editProjectTitle.dart';
 import 'package:taskslide/state/collaborationState.dart';
 import 'package:taskslide/state/state.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
+import 'InputAddListButtonCollaboration.dart';
 
 class Collaborations extends StatefulWidget {
   @override
@@ -60,7 +62,7 @@ class _CollaborationsState extends State<Collaborations> {
           width: mq.width < smallDevice ? (mq.width + 200) : 1800.0,
           child: NotificationListener<OverscrollIndicatorNotification>(
             onNotification: (__) {
-              __.disallowGlow();
+              __.disallowIndicator();
               return false;
             },
             child: Obx(
@@ -220,7 +222,8 @@ class _CollaborationsState extends State<Collaborations> {
                                         initState: () async =>
                                             await colllaborationState
                                                 .getCollaborationsStream(
-                                                    email: 'norb'),
+                                                    email: await taskState
+                                                        .getuserID()),
                                         renderSuccess: ({data}) {
                                           if (data.length > 0) {
                                             return Wrap(
@@ -235,6 +238,32 @@ class _CollaborationsState extends State<Collaborations> {
                                                   taskItem(
                                                       projectsIndex:
                                                           projectsIndex),
+                                                Wrap(
+                                                  children: [
+                                                    Obx(
+                                                      () => colllaborationState
+                                                                  .addingNewProjectToServerIndicator
+                                                                  .value ==
+                                                              true
+                                                          ? Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      top:
+                                                                          20.0),
+                                                              child:
+                                                                  CupertinoActivityIndicator(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .primaryColor,
+                                                                radius: 12,
+                                                              ),
+                                                            )
+                                                          : SizedBox(),
+                                                    ),
+                                                    InputAddListButtonCollaboration(),
+                                                  ],
+                                                ),
                                               ],
                                             );
                                           } else if (data.length == 0) {

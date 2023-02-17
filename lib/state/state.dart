@@ -290,6 +290,7 @@ class TaskState extends GetxController {
   }
 
   void getAndSetTaskValues({bool isInit}) async {
+    debugPrint("HRHHRHRH");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var values = (prefs.getString('main-list') ?? jsonEncode([]));
     var castedToList = json.decode(values);
@@ -528,7 +529,7 @@ class TaskState extends GetxController {
     }
   }
 
-  getuserID() async {
+  Future<String> getuserID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return (prefs.getString('user-ID') ?? "");
   }
@@ -556,49 +557,50 @@ class TaskState extends GetxController {
     update();
   }
 
-  addNewProject(BuildContext context,{String name, String time}) {
-    String userId = getuserID();
+  addNewProject(BuildContext context, {String name, String time}) async {
+    String userId = await getuserID();
     if (userId.isNotEmpty) {
+      List newItem = [
+        {
+          "id": 0,
+          "creator": userId ?? "",
+          "project-name": "$name",
+          "date-time": "$time",
+          "date-start": "",
+          "date-end": "",
+          "people": [userId],
+          "project-body": [],
+          'done': false,
+          'last_editted': DateTime.now().toIso8601String()
+        },
+      ];
 
-    List newItem = [
-      {
-        "id": 0,
+      var addMore = {
+        "id": allTasks.length,
         "creator": userId ?? "",
         "project-name": "$name",
         "date-time": "$time",
         "date-start": "",
         "date-end": "",
-        "people": [],
+        "people": [userId],
         "project-body": [],
         'done': false,
-      },
-    ];
+        'last_editted': DateTime.now().toIso8601String()
+      };
 
-    var addMore = {
-      "id": allTasks.length,
-      "creator": userId ?? "",
-      "project-name": "$name",
-      "date-time": "$time",
-      "date-start": "",
-      "date-end": "",
-      "people": [],
-      "project-body": [],
-      'done': false,
-    };
+      //print("Length of all files: ${allTasks.length}");
 
-    //print("Length of all files: ${allTasks.length}");
-
-    if (allTasks.length == 0) {
-      allTasks = newItem;
-    } else {
-      allTasks.add(addMore);
-    }
-    //print(allTasks);
-    update();
+      if (allTasks.length == 0) {
+        allTasks = newItem;
+      } else {
+        allTasks.add(addMore);
+      }
+      //print(allTasks);
+      update();
     } else {
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (builder) => MyApp()));
-    }    
+    }
   }
 
   Map<String, dynamic> returnSingleTaskItem() {
@@ -658,14 +660,15 @@ class TaskState extends GetxController {
   /// Get All Tasks for this users email
   getAllMyTask({String email}) async {
     packageDio.Dio dio = packageDio.Dio();
-    var url = BaseUrl.baseUrl + '/mytasks';
-    Map<String, dynamic> queryParams = {
+    var url = BaseUrl.baseUrl + '/my_projects';
+    Map<String, dynamic> body = {
       "email": email,
     };
 
     var response = await dio.post(
       url,
-      queryParameters: queryParams,
+      // queryParameters: queryParams,
+      data:body
     );
     var data = response.data;
     var check = data[0]["creator"];
@@ -677,14 +680,15 @@ class TaskState extends GetxController {
   getCollaborations({String email}) async {
     packageDio.Dio dio = packageDio.Dio();
     var url = BaseUrl.baseUrl + '/collaborations';
-    Map<String, dynamic> queryParams = {
+    Map<String, dynamic> body = {
       "email": email,
     };
 
     var response = await dio
         .post(
       url,
-      queryParameters: queryParams,
+      // queryParameters: queryParams,
+      data:body
     )
         .catchError((err) {
       print(err);
@@ -697,13 +701,14 @@ class TaskState extends GetxController {
   saveWholeProjectOnline({String email}) async {
     packageDio.Dio dio = packageDio.Dio();
     var url = BaseUrl.baseUrl + '/save-project';
-    Map<String, dynamic> queryParams = {
+    Map<String, dynamic> body = {
       "project": json.encode(allTasks),
     };
 
     var response = await dio.post(
       url,
-      queryParameters: queryParams,
+      // queryParameters: queryParams,
+      data:body
     );
 
     print(response.data);

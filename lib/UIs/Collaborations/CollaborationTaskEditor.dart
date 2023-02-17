@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:particles_flutter/particles_flutter.dart';
@@ -42,13 +40,17 @@ class _CollaborationTaskEditorState extends State<CollaborationTaskEditor> {
                       alignment: WrapAlignment.spaceBetween,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                 
                         MouseRegion(
                           cursor: SystemMouseCursors.click,
                           child: GestureDetector(
-                            onTap: (){taskState.switchPage(4);},
+                            onTap: (){
+                              // taskState.switchPage(4);
+                              taskState.closeTheMediumBar();
+
+                              },
                             child: RotatedBox(quarterTurns: 2,
-                              child: Icon(Icons.arrow_right_alt_rounded,size:30,
+                              child: Icon(taskState.closeMediumBar.value == false?Icons.chevron_left_rounded: Icons.chevron_right_rounded,
+                            size: 30,
                               color: Theme.of(context).primaryColor),
                             ),),),                      
 
@@ -223,15 +225,15 @@ class _CollaborationTaskEditorState extends State<CollaborationTaskEditor> {
                           message: "Home",
                           child: GestureDetector(
                             onTap: (){
-                              //taskState.closeTheMediumBar();
-                              collaborationState.swtichEditingMode(value: false);
+                              taskState.closeTheMediumBar();
+                              // collaborationState.swtichEditingMode(value: false);
                             },
                             child: MouseRegion(
                               cursor: SystemMouseCursors.click,
-                              child:RotatedBox(quarterTurns: 2,
-                              child: Icon(Icons.arrow_right_alt_rounded,size:30,
-                              color: Theme.of(context).primaryColor),
-                            ),
+                              child: Obx(()=>Icon(
+                            taskState.closeMediumBar.value == false?Icons.chevron_left_rounded: Icons.chevron_right_rounded,
+                            size: 30,
+                            color: Theme.of(context).primaryColor,)),
 
                               // Icon(Icons.arrow_back,
                               //   size: 30,

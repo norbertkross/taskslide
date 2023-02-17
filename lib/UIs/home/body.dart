@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:taskslide/UIs/home/App-Bar-Main.dart';
 import 'package:taskslide/UIs/home/Secondary-App-bar.dart';
 import 'package:taskslide/UIs/home/mediumBar.dart';
-import 'package:taskslide/UIs/login-and-onboarding/loginHome.dart';
 import 'package:taskslide/main.dart';
 import 'package:taskslide/state/state.dart';
 

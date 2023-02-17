@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:particles_flutter/particles_flutter.dart';
@@ -22,19 +20,6 @@ class _TaskDragDropState extends State<TaskDragDrop> {
   final collaborationState = Get.put(ColllaborationState());
 
   double smallDevice = 650.0;
-
-
-// EAEBEE - main body
-// F4F5F7 - Items cards body
-// E6E7E7 - circle avatar colo
-// FEFFFE - Card color
-
-
-// @override
-// void initState() { 
-//   super.initState();
-//   //print(taskState.currentRunningProjectId);
-// }
 
   @override
   Widget build(BuildContext context) {
@@ -301,6 +286,12 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                           ListView(
                             children: [
                               // Main List Body
+
+                              // Container(
+                              //   height: 50,
+                              //   width: 70,
+                              //   color: Colors.red,
+                              // ),
                               
                                   Wrap(
                                     alignment: mq.width < smallDevice && mq.width > 550.0? WrapAlignment.center : WrapAlignment.start,

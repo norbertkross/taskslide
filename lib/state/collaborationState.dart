@@ -29,6 +29,10 @@ class ColllaborationState extends GetxController {
 
   var feelingLucky = false.obs;
 
+  var showFrontInput = false.obs;
+
+  var addingNewProjectToServerIndicator = false.obs;
+
   var themeMode = false.obs;
 
   var showInput = false.obs;
@@ -102,7 +106,7 @@ class ColllaborationState extends GetxController {
             nPos: n,
             header: collabTaskList != null
                 ? collabTaskList[n]["name"].toString()
-                : "Aberor",
+                : "N/A",
             mainKeys: n.toString(),
             key: UniqueKey(),
           ),
@@ -149,7 +153,7 @@ class ColllaborationState extends GetxController {
       "description": "$description",
       "people": [
         {
-          "person-id": "id110",
+          "person-id": "",
           "profile-pic": "",
         }
       ]
@@ -328,6 +332,7 @@ class ColllaborationState extends GetxController {
         "people": [],
         "project-body": [],
         'done': false,
+        'last_editted': DateTime.now().toIso8601String()
       },
     ];
 
@@ -340,6 +345,7 @@ class ColllaborationState extends GetxController {
       "people": [],
       "project-body": [],
       'done': false,
+      'last_editted': DateTime.now().toIso8601String()
     };
 
     if (collabAllTasks.length == 0) {
@@ -348,6 +354,27 @@ class ColllaborationState extends GetxController {
       collabAllTasks.add(addMore);
     }
     update();
+    newProjectCreated(collabAllTasks[currentCollabRunningProjectId.value]);
+  }
+
+  // send new project to server
+  newProjectCreated(project) async {
+    addingNewProjectToServerIndicator.value = true;
+
+    packageDio.Dio dio = packageDio.Dio();
+    var url = BaseUrl.baseUrl + '/add_new_project';
+    Map<String, dynamic> body = project;
+
+    var response = await dio.post(url, data: body);
+    if (response.statusCode > 199 && response.statusCode < 206) {
+      // updated succesfully
+      addingNewProjectToServerIndicator.value = false;
+    } else {
+      // something else happened. could not add the data. remove locally added
+      addingNewProjectToServerIndicator.value = false;
+      collabAllTasks.removeWhere((element) => element['id'] == project['id']);
+      update();
+    }
   }
 
   void hasFinishedProject(
@@ -413,6 +440,22 @@ class ColllaborationState extends GetxController {
     generateList();
   }
 
+  void storeLocalValuesFromProjectHome() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var myToJson = jsonEncode(collabAllTasks);
+      await prefs.setString('main-list', myToJson);
+      //print(myToJson) ;
+
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  showInputToCreateTask(bool state) {
+    showFrontInput.value = state;
+  }
+
   void poulateCollabAllTasks(List incomingList) {
     if (incomingList != null) {
       collabAllTasks.clear();
@@ -429,15 +472,14 @@ class ColllaborationState extends GetxController {
   Future getCollaborationsStream({String email}) async {
     packageDio.Dio dio = packageDio.Dio();
     var url = BaseUrl.baseUrl + '/collaborations';
-    Map<String, dynamic> queryParams = {
+    Map<String, dynamic> body = {
       "email": email.toString(),
     };
 
     var response = await dio
-        .post(
-      url,
-      queryParameters: queryParams,
-    )
+        .post(url,
+            // queryParameters: queryParams,
+            data: body)
         .catchError((Response err) async {
       //print("Error $err");
       return [];
@@ -537,6 +579,7 @@ class ColllaborationState extends GetxController {
       'people': peopleEncoded,
       'project-body': projectBodyEncoded,
       'done': false,
+      'last_editted': DateTime.now().toIso8601String()
     };
 
     return queryParams;
