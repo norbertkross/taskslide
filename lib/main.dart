@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_navigation/get_navigation.dart';
-import 'package:taskslide/UIs/home/body.dart';
 import 'package:taskslide/UIs/login-and-onboarding/loginHome.dart';
 import 'package:taskslide/state/state.dart';
-
-import 'UIs/home/taskDragDrop.dart';
 
 void main() {
   runApp(GetMaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));

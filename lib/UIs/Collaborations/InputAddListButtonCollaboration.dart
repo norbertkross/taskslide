@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taskslide/state/collaborationState.dart';
-import 'package:taskslide/state/state.dart';
 
 class InputAddListButtonCollaboration extends StatefulWidget {
   const InputAddListButtonCollaboration({

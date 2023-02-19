@@ -52,7 +52,6 @@ class TaskState extends GetxController {
 
   var currentInputIndex = "currentid".obs;
 
-  var feelingLucky = false.obs;
 
   var themeMode = false.obs;
 
@@ -506,18 +505,6 @@ class TaskState extends GetxController {
     offlineMode.value = (prefs.getBool('offlineMode') ?? false);
   }
 
-  setFeelingLuckyMode() async {
-    feelingLucky.value = !feelingLucky.value;
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('feeling', feelingLucky.value);
-    } catch (e) {}
-  }
-
-  getFeelingLuckyMode() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    feelingLucky.value = (prefs.getBool('feeling') ?? false);
-  }
 
   setUserEmailasID(String value, context) async {
     try {

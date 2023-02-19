@@ -203,17 +203,12 @@ class _CollaborationsState extends State<Collaborations> {
                                                       padding: EdgeInsets.only(
                                                           top: 40),
                                                       child:
-                                                          CircularProgressIndicator(
-                                                        strokeWidth: 3.0,
-                                                        backgroundColor:
-                                                            Theme.of(context)
-                                                                .cardColor,
-                                                        valueColor:
-                                                            AlwaysStoppedAnimation<
-                                                                Color>(Theme.of(
-                                                                    context)
-                                                                .primaryColor),
-                                                      ),
+                                                           CupertinoActivityIndicator(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .primaryColor,
+                                                                radius: 17,
+                                                              ),
                                                     ),
                                                   ],
                                                 ),
@@ -226,8 +221,11 @@ class _CollaborationsState extends State<Collaborations> {
                                                         .getuserID()),
                                         renderSuccess: ({data}) {
                                           if (data.length > 0) {
-                                            return Wrap(
+                                            return GetBuilder<ColllaborationState>(
+                                    builder: (builder) => Wrap(
                                               children: [
+                                    //             GetBuilder<ColllaborationState>(
+                                    // builder: (builder) =>)
                                                 for (int projectsIndex = 0;
                                                     projectsIndex <=
                                                         colllaborationState
@@ -256,7 +254,7 @@ class _CollaborationsState extends State<Collaborations> {
                                                                 color: Theme.of(
                                                                         context)
                                                                     .primaryColor,
-                                                                radius: 12,
+                                                                radius: 16,
                                                               ),
                                                             )
                                                           : SizedBox(),
@@ -265,7 +263,7 @@ class _CollaborationsState extends State<Collaborations> {
                                                   ],
                                                 ),
                                               ],
-                                            );
+                                            ));
                                           } else if (data.length == 0) {
                                             return Container(
                                               child: SizedBox(

@@ -22,7 +22,6 @@ class _BodyState extends State<Body> {
 
     taskState.getOfflineMode();
     taskState.getThemeMode();
-    taskState.getFeelingLuckyMode();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       setState(() {

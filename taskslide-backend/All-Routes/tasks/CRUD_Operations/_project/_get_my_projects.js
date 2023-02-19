@@ -17,9 +17,7 @@ GetMyProjetcs.post("/my_projects", async(req,res)=>{
         res.status(500).json({message:"Something went wrong",error:"An error occured",})      
     } else{
     if (snapshot.empty) {
-
         res.status(200).json({message:"ok",error:null,data:[],})
-
     }else{
         var results = snapshot.docs[0].data()
         res.status(200).json({message:"ok",error:null,data:results,})

@@ -298,14 +298,12 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                                     children: [
                                       Padding(
                                         padding: EdgeInsets.only(top: 40),
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 3.0,
-                                          backgroundColor:
-                                              Theme.of(context).cardColor,
-                                          valueColor: AlwaysStoppedAnimation<
-                                                  Color>(
-                                              Theme.of(context).primaryColor),
-                                        ),
+                                        child:  CupertinoActivityIndicator(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .primaryColor,
+                                                                radius: 12,
+                                                              ),
                                       ),
                                     ],
                                   ),

@@ -354,7 +354,8 @@ class ColllaborationState extends GetxController {
       collabAllTasks.add(addMore);
     }
     update();
-    newProjectCreated(collabAllTasks[currentCollabRunningProjectId.value]);
+    debugPrint("UPDATED... ${collabAllTasks.length}");
+    // newProjectCreated(collabAllTasks[currentCollabRunningProjectId.value+1]);
   }
 
   // send new project to server
@@ -365,16 +366,23 @@ class ColllaborationState extends GetxController {
     var url = BaseUrl.baseUrl + '/add_new_project';
     Map<String, dynamic> body = project;
 
-    var response = await dio.post(url, data: body);
-    if (response.statusCode > 199 && response.statusCode < 206) {
-      // updated succesfully
-      addingNewProjectToServerIndicator.value = false;
-    } else {
-      // something else happened. could not add the data. remove locally added
-      addingNewProjectToServerIndicator.value = false;
-      collabAllTasks.removeWhere((element) => element['id'] == project['id']);
-      update();
-    }
+    await dio.post(url, data: body).then((value) {
+      if (value.statusCode > 199 && value.statusCode < 206) {
+        // updated succesfully
+        addingNewProjectToServerIndicator.value = false;
+        debugPrint(".........200");
+        update();
+      } else {
+        // something else happened. could not add the data. remove locally added
+        addingNewProjectToServerIndicator.value = false;
+        collabAllTasks.removeWhere((element) => element['id'] == project['id']);
+        debugPrint(".......NOT..200");
+
+        update();
+      }
+    }).catchError((onError) {
+      debugPrint("ON_ERROR......$onError");
+    });
   }
 
   void hasFinishedProject(
@@ -521,6 +529,7 @@ class ColllaborationState extends GetxController {
       //collabAllTasks
       collabAllTasks[currentCollabRunningProjectId.value]["project-body"] =
           newData;
+      print("New Recieved: ${newData}");
       print("New Data Recieved");
       generateList();
       update();
@@ -619,9 +628,9 @@ class ColllaborationState extends GetxController {
     /// This user recieves data from the server.The data is from a
     /// particular thask room which user has joined with ['join_a_taskroom']
     taskState.socket.on('get_a_taskroom_event', (data) {
-      print("Data: ");
+      print("Data: $data ");
 
-      var dataDecoded = json.decode(data);
+      var dataDecoded = data;
       //print(dataDecoded);
       /// Check if the user is not currently editing
       /// if Editting dont do anything otherwise add the new data to the list

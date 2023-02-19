@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:reorderables/reorderables.dart';
-import 'package:particles_flutter/particles_flutter.dart';
 import 'package:taskslide/UIs/Extras/offline-switch.dart';
 import 'package:taskslide/state/collaborationState.dart';
 import 'package:taskslide/state/state.dart';
@@ -53,84 +52,7 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                       Wrap(       
                         crossAxisAlignment: WrapCrossAlignment.center,                
                         children: [
-                          Tooltip(message: "I'm feeling lucky",
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              onTap: (){
-                                taskState.setFeelingLuckyMode();
-                              },
-                              child: Container(
-                                width: 50,
-                                height: 50,
-                                color: Theme.of(context).primaryColor.withOpacity(.001),
-                                child: Stack(
-                                  children: [                                 
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 20,left: 25),
-                                      child: Container(
-                                        width: 10,
-                                        height: 10,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 15,left: 8),
-                                      child: Container(
-                                        width: 10,
-                                        height: 10,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.yellow,
-                                        ),
-                                      ),
-                                    ),
-
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 20,left: 17),
-                                      child: Container(
-                                        width: 6,
-                                        height: 6,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Color(0xff1a4ff7),
-                                        ),
-                                      ),
-                                    ),
-
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 12,left: 30),
-                                      child: Container(
-                                        width: 7,
-                                        height: 7,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Color(0xfff78f1a),
-                                        ),
-                                      ),
-                                    ),
-
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 12,left: 19),
-                                      child: Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Color(0xFF0aab20),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          ),
-
+                          
                           IconButton(
                           tooltip: "Theme",
                           icon: Icon(
@@ -251,47 +173,12 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width < smallDevice ? (mq.width < 350 ? mq.width + 100 : mq.width + 5) : 1800.0,
-                    child: Obx(()=>
+                    child: 
                        Stack(
                         children: [
-
-                      taskState.feelingLucky.value == true? CircularParticle(
-                          key: ValueKey("CircularParticle"),
-                          height: MediaQuery.of(context).size.height,
-                          width: MediaQuery.of(context).size.width < smallDevice ?  (mq.width < 350 ? mq.width + 100 : mq.width + 5)  : 1800.0,
-                          awayRadius: 80, 
-                          numberOfParticles: 200,
-                          speedOfParticles: 1,
-
-                          onTapAnimation: true,
-                          particleColor: Colors.white,
-                          awayAnimationDuration: Duration(milliseconds: 800),
-                          maxParticleSize: 5,
-                          isRandSize: true,
-                          isRandomColor: true,
-                          randColorList: [
-                            Colors.red,
-                            Color(0xff1a4ff7),
-                            Color(0xfff78f1a),                
-                            Colors.yellow,
-                            Color(0xFF0aab20),
-                          ],
-                          awayAnimationCurve: Curves.easeInOutBack,
-                          enableHover: true,
-                          hoverColor: Colors.white,
-                          hoverRadius: 90,
-                          connectDots: false, //not recommended 
-                        ):Container(),
-
+            
                           ListView(
                             children: [
-                              // Main List Body
-
-                              // Container(
-                              //   height: 50,
-                              //   width: 70,
-                              //   color: Colors.red,
-                              // ),
                               
                                   Wrap(
                                     alignment: mq.width < smallDevice && mq.width > 550.0? WrapAlignment.center : WrapAlignment.start,
@@ -317,8 +204,7 @@ class _TaskDragDropState extends State<TaskDragDrop> {
                                       SizedBox(height: 30,),
                                     ],
                                   ),
-                                ],
-                              )
+                                ],                              
                             ),
                           ),
                         ),

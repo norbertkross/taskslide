@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:taskslide/state/state.dart';
+
+import '../../state/collaborationState.dart';
 
 
 class MediumBar extends StatefulWidget {
@@ -11,6 +12,7 @@ class MediumBar extends StatefulWidget {
 
 class _MediumBarState extends State<MediumBar> {
 
+  final colllaborationState = Get.put(ColllaborationState());
   final taskState = Get.put(TaskState());
 
   @override
@@ -78,7 +80,7 @@ class _MediumBarState extends State<MediumBar> {
 
               // Projects List          
                             
-              for(int projects=0; projects <= taskState.allTasks.length-1;projects++)
+              for(int projects=0; projects <= colllaborationState.collabAllTasks.length-1;projects++)
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: MouseRegion(
@@ -86,12 +88,12 @@ class _MediumBarState extends State<MediumBar> {
                   child: Obx(()=>
                      GestureDetector(
                        onTap: (){
-                        taskState.switchCurrentRunningProcess(projects);
+                        colllaborationState.switchCurrentRunningProcess(projects);
                         taskState.switchPage(0);                         
                        },
                        child: Container(                    
                         decoration: BoxDecoration(
-                          color: taskState.currentRunningProjectId.value == projects?Theme.of(context).primaryColor :Theme.of(context).primaryColor.withOpacity(.2),
+                          color: colllaborationState.currentCollabRunningProjectId.value == projects?Theme.of(context).primaryColor :Theme.of(context).primaryColor.withOpacity(.2),
                           borderRadius: BorderRadius.circular(8.0,),
                         ),
                         child: Padding(
@@ -104,7 +106,7 @@ class _MediumBarState extends State<MediumBar> {
                                 padding: const EdgeInsets.symmetric(vertical:5.0,),
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text("${taskState.allTasks[projects]["project-name"]}",
+                                  child: Text("${colllaborationState.collabAllTasks[projects]["project-name"]}",
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -118,9 +120,8 @@ class _MediumBarState extends State<MediumBar> {
                      ),
                   ),
                 ),
-              ),              
-
-        ],
+              ),
+           ],
       ),
     );
   }
