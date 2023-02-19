@@ -321,15 +321,17 @@ class ColllaborationState extends GetxController {
     update();
   }
 
-  addNewProject({String name, String time}) {
+  addNewProject({String name, String time, @required String userid}) {
+
     List newItem = [
       {
+        "creator": userid,
         "id": 0,
         "project-name": "$name",
         "date-time": "$time",
         "date-start": "",
         "date-end": "",
-        "people": [],
+        "people": [userid],
         "project-body": [],
         'done': false,
         'last_editted': DateTime.now().toIso8601String()
@@ -337,12 +339,13 @@ class ColllaborationState extends GetxController {
     ];
 
     var addMore = {
+      "creator":userid,
       "id": collabAllTasks.length,
       "project-name": "$name",
       "date-time": "$time",
       "date-start": "",
       "date-end": "",
-      "people": [],
+     "people": [userid],
       "project-body": [],
       'done': false,
       'last_editted': DateTime.now().toIso8601String()
@@ -354,12 +357,14 @@ class ColllaborationState extends GetxController {
       collabAllTasks.add(addMore);
     }
     update();
-    debugPrint("UPDATED... ${collabAllTasks.length}");
-    // newProjectCreated(collabAllTasks[currentCollabRunningProjectId.value+1]);
+    // debugPrint("UPDATED... ${collabAllTasks.length}");
+    newProjectCreated(collabAllTasks[collabAllTasks.length-1]);
   }
 
   // send new project to server
   newProjectCreated(project) async {
+        print("SENDING \n$project   ---> ");
+
     addingNewProjectToServerIndicator.value = true;
 
     packageDio.Dio dio = packageDio.Dio();

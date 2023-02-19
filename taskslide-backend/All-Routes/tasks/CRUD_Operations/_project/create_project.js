@@ -11,7 +11,7 @@ addNewProject.post("/add_new_project", async(req,res)=>{
    
 function addnew(req,res){
     var data = req.body
-    console.log(`DTAT: ${data}`)
+    console.log(`DTAT: ${JSON.stringify(data)}`)
     const docReference = db.collection('/all_tasks').doc();
 
     docReference.set(data)

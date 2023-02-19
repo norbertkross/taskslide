@@ -19,7 +19,8 @@ GetMyProjetcs.post("/my_projects", async(req,res)=>{
     if (snapshot.empty) {
         res.status(200).json({message:"ok",error:null,data:[],})
     }else{
-        var results = snapshot.docs[0].data()
+        var results = snapshot.docs
+        console.log(`My Docs: ${results}`)
         res.status(200).json({message:"ok",error:null,data:results,})
     }
     }       

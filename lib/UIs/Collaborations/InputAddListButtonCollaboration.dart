@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taskslide/state/collaborationState.dart';
 
+import '../../state/state.dart';
+
 class InputAddListButtonCollaboration extends StatefulWidget {
   const InputAddListButtonCollaboration({
     Key key,
   }) : super(key: key);
   @override
-  _InputAddListButtonCollaborationState createState() => _InputAddListButtonCollaborationState();
+  _InputAddListButtonCollaborationState createState() =>
+      _InputAddListButtonCollaborationState();
 }
 
-class _InputAddListButtonCollaborationState extends State<InputAddListButtonCollaboration> {
-  // final taskState = Get.put(TaskState());
+class _InputAddListButtonCollaborationState
+    extends State<InputAddListButtonCollaboration> {
+  final taskState = Get.put(TaskState());
   final colllaborationState = Get.put(ColllaborationState());
 
   final TextEditingController controller = TextEditingController();
@@ -41,19 +45,26 @@ class _InputAddListButtonCollaborationState extends State<InputAddListButtonColl
                             width: 200.0,
                             height: 40.0,
                             child: TextField(
-                              onSubmitted: (String value){
-                                    if (input.trim().isNotEmpty) {
-                                //taskState.callToAddParent(input);
-                                //taskState.getAndSetTaskValues(isInit: true);
-                                setState(() {
-                                  DateTime dateTime = DateTime.now();
+                              onSubmitted: (String value) async{
+                                String userid =await taskState
+                                                        .getuserID();
+                                if (input.trim().isNotEmpty) {
+                                  print("VAL: $value   ---> $input");
+                                  //taskState.callToAddParent(input);
+                                  //taskState.getAndSetTaskValues(isInit: true);
+                                  setState(() {
+                                    DateTime dateTime = DateTime.now();
 
-                                  colllaborationState.addNewProject(name: input, time: dateTime.toString());
-                                  colllaborationState.storeLocalValuesFromProjectHome();
-                                  colllaborationState.showInputToCreateTask(false);
-                                });
-                                controller.clear();
-                              }
+                                    colllaborationState.addNewProject(
+                                      userid:userid ,
+                                        name: input, time: dateTime.toString());
+                                    colllaborationState
+                                        .storeLocalValuesFromProjectHome();
+                                    colllaborationState
+                                        .showInputToCreateTask(false);
+                                  });
+                                  controller.clear();
+                                }
                               },
                               controller: controller,
                               cursorColor: Theme.of(context)
@@ -77,16 +88,22 @@ class _InputAddListButtonCollaborationState extends State<InputAddListButtonColl
                         MouseRegion(
                           cursor: SystemMouseCursors.click,
                           child: GestureDetector(
-                            onTap: () {
+                            onTap: ()async {
+                                String userid =await taskState
+                                                        .getuserID();
                               if (input.trim().isNotEmpty) {
                                 //taskState.callToAddParent(input);
                                 //taskState.getAndSetTaskValues(isInit: true);
                                 setState(() {
                                   DateTime dateTime = DateTime.now();
 
-                                  colllaborationState.addNewProject(name: input, time: dateTime.toString());
-                                  colllaborationState.storeLocalValuesFromProjectHome();
-                                  colllaborationState.showInputToCreateTask(false);
+                                  colllaborationState.addNewProject(
+                                    userid: userid,
+                                      name: input, time: dateTime.toString());
+                                  colllaborationState
+                                      .storeLocalValuesFromProjectHome();
+                                  colllaborationState
+                                      .showInputToCreateTask(false);
                                 });
                                 controller.clear();
                               }
@@ -178,7 +195,8 @@ class _InputAddListButtonCollaborationState extends State<InputAddListButtonColl
                               child: Obx(
                                 () => Icon(
                                   Icons.add,
-                                  color: colllaborationState.themeMode.value == true
+                                  color: colllaborationState.themeMode.value ==
+                                          true
                                       ? Theme.of(context).disabledColor
                                       : Colors.black.withOpacity(.4),
                                   size: 20.0,
