@@ -12,39 +12,8 @@ class MediumBar extends StatefulWidget {
 class _MediumBarState extends State<MediumBar> {
   final colllaborationState = Get.put(ColllaborationState());
   final taskState = Get.put(TaskState());
-  var searchableArray = [];
   TextEditingController _controller = TextEditingController();
   String get inputText => _controller.text;
-  bool isSearching = false;
-
-  searchForPattern(String pattern) {
-    setState(() {
-      isSearching = true;
-    });
-
-    if (pattern.isEmpty) {
-      setState(() {
-        isSearching = false;
-        searchableArray = [];
-      });
-    } else {
-      searchableArray = [];
-      setState(() {
-        for (int project = 0;
-            project < (colllaborationState.collabAllTasks.length - 1);
-            project++) {
-          if (colllaborationState.collabAllTasks[project]["project-name"]
-                  .toString()
-                  .contains(pattern) ==
-              true) {
-            var taskToAdd = colllaborationState.collabAllTasks[project];
-            taskToAdd['task_real_index'] = project;
-            searchableArray.add(taskToAdd);
-          }
-        }
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +60,7 @@ class _MediumBarState extends State<MediumBar> {
                         child: TextField(
                           controller: _controller,
                           onChanged: (String textValue) {
-                            searchForPattern(textValue);
+                            colllaborationState.searchForPattern(textValue);
                           },
                           decoration: InputDecoration(
                             border: InputBorder.none,
@@ -100,17 +69,12 @@ class _MediumBarState extends State<MediumBar> {
                         ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: Icon(Icons.search,
-                                color: Theme.of(context)
-                                    .disabledColor
-                                    .withOpacity(.3))),
-                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Icon(Icons.search,
+                          color: Theme.of(context)
+                              .disabledColor
+                              .withOpacity(.3)),
                     ),
                   ],
                 ),
@@ -120,83 +84,103 @@ class _MediumBarState extends State<MediumBar> {
 
           // Projects List
 
-          for (int projects = 0;
-              projects <=
-                  (searchableArray.isNotEmpty && inputText.trim().isNotEmpty
-                      ? (searchableArray.length - 1)
-                      : (colllaborationState.collabAllTasks.length - 1));
-              projects++)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: Obx(
-                  () => GestureDetector(
-                    onTap: () {
-                      if (isSearching != true) {
-                        colllaborationState
-                            .switchCurrentRunningProcess(projects);
-                                                    taskState.switchPage(0);
+          GetBuilder<ColllaborationState>(
+              builder: (builder) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (int projects = 0;
+                          projects <
+                              (colllaborationState.searchableArray.isNotEmpty &&
+                                      inputText.trim().isNotEmpty
+                                  ? (colllaborationState
+                                          .searchableArray.length)
+                                  : (colllaborationState.collabAllTasks.length));
+                          projects++)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Obx(
+                              () => GestureDetector(
+                                onTap: () {
+                                  if (colllaborationState.isSearching.value !=
+                                      true) {
+                                    debugPrint("HEER");
+                                    colllaborationState
+                                        .switchCurrentRunningProcess(projects);
 
-                        colllaborationState.swtichEditingMode();
+                                    /// Join a socketio room when someone hits a collaboration room
+                                    colllaborationState.joinTaskRoom();
+                                  } else {
+                                    int indexOfTask = colllaborationState
+                                            .searchableArray[projects]
+                                        ['task_real_index'];
+                                    colllaborationState
+                                        .switchCurrentRunningProcess(
+                                            indexOfTask);
 
-                        /// Join a socketio room when someone hits a collaboration room
-                        colllaborationState.joinTaskRoom();
-                      } else {
-                        int indexOfTask =
-                            searchableArray[projects]['task_real_index'];
-                        colllaborationState
-                            .switchCurrentRunningProcess(indexOfTask);
-                                                    taskState.switchPage(0);
+                                    /// Join a socketio room when someone hits a collaboration room
+                                    colllaborationState.joinTaskRoom();
+                                  }
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color:colllaborationState.searchableArray.isNotEmpty &&
+                                      inputText.trim().isNotEmpty? Theme.of(context).primaryColor : (colllaborationState
+                                                .currentCollabRunningProjectId
+                                                .value ==
+                                            projects
+                                        ? Theme.of(context).primaryColor
+                                        : Theme.of(context)
+                                            .primaryColor
+                                            .withOpacity(.3)),
+                                    borderRadius: BorderRadius.circular(
+                                      8.0,
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        bottom: 0.0001, left: 4.0, right: 4.0),
+                                    // padding: const EdgeInsets.only(bottom:12.0,left: 4.0),
+                                    child: SizedBox(
+                                       width: MediaQuery.of(context).size.width,                   
 
-                        colllaborationState.swtichEditingMode();
-
-                        /// Join a socketio room when someone hits a collaboration room
-                        colllaborationState.joinTaskRoom();
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: colllaborationState
-                                    .currentCollabRunningProjectId.value ==
-                                projects
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).primaryColor.withOpacity(.2),
-                        borderRadius: BorderRadius.circular(
-                          8.0,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            bottom: 0.0001, left: 4.0, right: 4.0),
-                        // padding: const EdgeInsets.only(bottom:12.0,left: 4.0),
-                        child: Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 5.0,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  "${colllaborationState.collabAllTasks[projects]["project-name"]}",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).cardColor,
+                                      child: Wrap(
+                                        crossAxisAlignment:
+                                            WrapCrossAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 5.0,
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                colllaborationState.searchableArray.isNotEmpty &&
+                                                inputText.trim().isNotEmpty?
+                                                "${colllaborationState.searchableArray[projects]["project-name"]}"
+                                                :
+                                                "${colllaborationState.collabAllTasks[projects]["project-name"]}",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                  color:
+                                                      Theme.of(context).cardColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+                    ],
+                  )),
         ],
       ),
     );

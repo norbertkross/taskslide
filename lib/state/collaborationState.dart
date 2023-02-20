@@ -13,6 +13,7 @@ import 'package:dio/dio.dart' as packageDio;
 import 'package:taskslide/UIs/CustomDialogBody/CustomBodyDialog.dart';
 import 'package:taskslide/state/BaseUrl.dart';
 import 'package:taskslide/state/state.dart';
+import 'package:uuid/uuid.dart';
 
 class ColllaborationState extends GetxController {
 // DECLARATIONS
@@ -49,6 +50,11 @@ class ColllaborationState extends GetxController {
 
   var childListCurrentTouchParentKey = -1
     ..obs;
+
+  List searchableArray = []..obs;
+
+  var isSearching = false.obs;
+
 
   final taskState = Get.put(TaskState());
 
@@ -129,10 +135,12 @@ class ColllaborationState extends GetxController {
   }
 
   void addParentCard(String label) {
+    Uuid uuid = Uuid();
+
     var cardData =
         // Single Task Item
         {
-      "id": "${collabTaskList.length}",
+      "id": "${uuid.v4()}", // collabTaskList.length,
       "color": "#0",
       "name": "$label",
       "sub-children": [],
@@ -144,9 +152,11 @@ class ColllaborationState extends GetxController {
   }
 
   void addChildToParent(int maxN, {String header, String description}) {
+    Uuid uuid = Uuid();
+
     // A Task Child Item
     var childData = {
-      "id": "${collabTaskList[maxN]["sub-children"].length}",
+      "id": uuid.v4(), //"${collabTaskList[maxN]["sub-children"].length}",
       "color": "#0",
       "state": "waiting",
       "name": "$header",
@@ -322,11 +332,12 @@ class ColllaborationState extends GetxController {
   }
 
   addNewProject({String name, String time, @required String userid}) {
+    Uuid uuid = Uuid();
 
     List newItem = [
       {
         "creator": userid,
-        "id": 0,
+        "id": uuid.v4(), // 0,
         "project-name": "$name",
         "date-time": "$time",
         "date-start": "",
@@ -334,21 +345,23 @@ class ColllaborationState extends GetxController {
         "people": [userid],
         "project-body": [],
         'done': false,
-        'last_editted': DateTime.now().toIso8601String()
+        'last_editted': DateTime.now().toIso8601String(),
+        "access_type": "private",
       },
     ];
 
     var addMore = {
-      "creator":userid,
-      "id": collabAllTasks.length,
+      "creator": userid,
+      "id": uuid.v4(), // collabAllTasks.length,
       "project-name": "$name",
       "date-time": "$time",
       "date-start": "",
       "date-end": "",
-     "people": [userid],
+      "people": [userid],
       "project-body": [],
       'done': false,
-      'last_editted': DateTime.now().toIso8601String()
+      'last_editted': DateTime.now().toIso8601String(),
+      "access_type": "private",
     };
 
     if (collabAllTasks.length == 0) {
@@ -358,12 +371,12 @@ class ColllaborationState extends GetxController {
     }
     update();
     // debugPrint("UPDATED... ${collabAllTasks.length}");
-    newProjectCreated(collabAllTasks[collabAllTasks.length-1]);
+    newProjectCreated(collabAllTasks[collabAllTasks.length - 1]);
   }
 
   // send new project to server
   newProjectCreated(project) async {
-        print("SENDING \n$project   ---> ");
+    print("SENDING \n$project   ---> ");
 
     addingNewProjectToServerIndicator.value = true;
 
@@ -465,6 +478,39 @@ class ColllaborationState extends GetxController {
     }
   }
 
+  searchForPattern(String pattern) {
+    //  ^([a-zA-Z]+)$.*\b(?=[a-zA-Z]*w)(?=[a-zA-Z]*o)(?=[a-zA-Z]*r)(?=[a-zA-Z]*d)[a-zA-Z]+$
+
+      isSearching.value = true;
+
+    if (pattern.isEmpty) {
+        isSearching.value = false;
+        searchableArray = [];
+    update();
+
+    } else {
+
+      searchableArray = [];
+
+        for (int project = 0;
+            project < (collabAllTasks.length);
+            project++) {
+              
+          bool patternMatches = collabAllTasks[project]["project-name"]
+                  .toString().toLowerCase()
+                  .contains(pattern.toLowerCase());
+              
+          if (patternMatches) {
+              var taskToAdd = collabAllTasks[project];
+              taskToAdd['task_real_index'] = project;
+              searchableArray.add(taskToAdd);
+              }
+        }
+           update();
+ 
+    }
+  }
+
   showInputToCreateTask(bool state) {
     showFrontInput.value = state;
   }
@@ -498,7 +544,7 @@ class ColllaborationState extends GetxController {
       return [];
     });
     //var decodedData = json.decode(response.data);
-    print('THE DATA: ${response.data}');
+    // print('THE DATA: ${response.data}');
 
     poulateCollabAllTasks(response.data.length == 0 ? null : response.data);
     return response.data.length == 0 ? [] : response.data;
@@ -581,6 +627,10 @@ class ColllaborationState extends GetxController {
         ? collabAllTasks[currentCollabRunningProjectId.value]["project-body"]
         : "";
 
+    var accessType = collabAllTasks.length > 0
+        ? collabAllTasks[currentCollabRunningProjectId.value]["access_type"]
+        : "";
+
     var projectBodyEncoded = collabAllTasks.length > 0 ? projectBody : "";
 
     Map<String, dynamic> queryParams = {
@@ -593,7 +643,8 @@ class ColllaborationState extends GetxController {
       'people': peopleEncoded,
       'project-body': projectBodyEncoded,
       'done': false,
-      'last_editted': DateTime.now().toIso8601String()
+      'last_editted': DateTime.now().toIso8601String(),
+      "access_type": accessType,
     };
 
     return queryParams;
