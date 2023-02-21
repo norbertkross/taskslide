@@ -55,8 +55,11 @@ class ColllaborationState extends GetxController {
 
   var isSearching = false.obs;
 
-
   final taskState = Get.put(TaskState());
+
+  final String SAVED_TASKS = "SAVED_TASKS";
+  final String LOGIN_STATUS = "LOGIN_STATUS";
+  final String SYNC_MY_DATA = "SYNC_MY_DATA";
 
   @override
   void onInit() {
@@ -371,6 +374,7 @@ class ColllaborationState extends GetxController {
     }
     update();
     // debugPrint("UPDATED... ${collabAllTasks.length}");
+
     newProjectCreated(collabAllTasks[collabAllTasks.length - 1]);
   }
 
@@ -466,48 +470,43 @@ class ColllaborationState extends GetxController {
     generateList();
   }
 
-  void storeLocalValuesFromProjectHome() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      var myToJson = jsonEncode(collabAllTasks);
-      await prefs.setString('main-list', myToJson);
-      //print(myToJson) ;
+  // void storeLocalValuesFromProjectHome() async {
+  //   try {
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     var myToJson = jsonEncode(collabAllTasks);
+  //     await prefs.setString('main-list', myToJson);
+  //     //print(myToJson) ;
 
-    } catch (e) {
-      print(e);
-    }
-  }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   searchForPattern(String pattern) {
     //  ^([a-zA-Z]+)$.*\b(?=[a-zA-Z]*w)(?=[a-zA-Z]*o)(?=[a-zA-Z]*r)(?=[a-zA-Z]*d)[a-zA-Z]+$
 
-      isSearching.value = true;
+    isSearching.value = true;
 
     if (pattern.isEmpty) {
-        isSearching.value = false;
-        searchableArray = [];
-    update();
-
+      isSearching.value = false;
+      searchableArray = [];
+      update();
     } else {
-
       searchableArray = [];
 
-        for (int project = 0;
-            project < (collabAllTasks.length);
-            project++) {
-              
-          bool patternMatches = collabAllTasks[project]["project-name"]
-                  .toString().toLowerCase()
-                  .contains(pattern.toLowerCase());
-              
-          if (patternMatches) {
-              var taskToAdd = collabAllTasks[project];
-              taskToAdd['task_real_index'] = project;
-              searchableArray.add(taskToAdd);
-              }
+      for (int project = 0; project < (collabAllTasks.length); project++) {
+        bool patternMatches = collabAllTasks[project]["project-name"]
+            .toString()
+            .toLowerCase()
+            .contains(pattern.toLowerCase());
+
+        if (patternMatches) {
+          var taskToAdd = collabAllTasks[project];
+          taskToAdd['task_real_index'] = project;
+          searchableArray.add(taskToAdd);
         }
-           update();
- 
+      }
+      update();
     }
   }
 
@@ -529,25 +528,43 @@ class ColllaborationState extends GetxController {
   /// Get all Tasks that the user is collaborating in AS a STREAM
   //Stream<List>
   Future getCollaborationsStream({String email}) async {
-    packageDio.Dio dio = packageDio.Dio();
-    var url = BaseUrl.baseUrl + '/collaborations';
-    Map<String, dynamic> body = {
-      "email": email.toString(),
-    };
+    
+    bool syncMyData = await getSYNC_MY_DATA();
+    bool userHasLoggenIn = await getLOGIN_STATUS();
 
-    var response = await dio
-        .post(url,
-            // queryParameters: queryParams,
-            data: body)
-        .catchError((Response err) async {
-      //print("Error $err");
-      return [];
-    });
-    //var decodedData = json.decode(response.data);
-    // print('THE DATA: ${response.data}');
+    if (syncMyData == true) {
+      if (userHasLoggenIn == true) {
+        // if SYNCING is ON and the USER is LOG IN get online data
+        packageDio.Dio dio = packageDio.Dio();
+        var url = BaseUrl.baseUrl + '/collaborations';
+        Map<String, dynamic> body = {
+          "email": email.toString(),
+        };
 
-    poulateCollabAllTasks(response.data.length == 0 ? null : response.data);
-    return response.data.length == 0 ? [] : response.data;
+        var response = await dio
+            .post(url,
+                // queryParameters: queryParams,
+                data: body)
+            .catchError((Response err) async {
+          return [];
+        });
+
+        poulateCollabAllTasks(response.data.length == 0 ? null : response.data);
+        return response.data.length == 0 ? [] : response.data;
+      } else {
+        debugPrint("LOCAL 2");
+        // we can update tasks if the user is also not logged in, so just return locally saved data
+        getAndSetTaskValues();
+        poulateCollabAllTasks(collabAllTasks);
+        return collabAllTasks;
+      }
+    } else {
+      debugPrint("LOCAL 1");
+      // If the user has turn syncing of just return any locally saved data available
+      getAndSetTaskValues();
+      poulateCollabAllTasks(collabAllTasks);
+      return collabAllTasks;
+    }
   }
 
   void swtichEditingMode({bool value}) {
@@ -556,6 +573,52 @@ class ColllaborationState extends GetxController {
     } else {
       isEditing.value = value;
     }
+  }
+
+  void storeValuesLocally() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      var myToJson = jsonEncode(collabAllTasks);
+      await prefs.setString(SAVED_TASKS, myToJson);
+    } catch (e) {}
+  }
+
+  void setSYNC_MY_DATA(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      await prefs.setBool(SYNC_MY_DATA, value);
+    } catch (e) {}
+  }
+
+  void setLOGIN_STATUS(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      await prefs.setBool(LOGIN_STATUS, value);
+    } catch (e) {}
+  }
+
+  void getAndSetTaskValues({bool isInit}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var values = (prefs.getString(SAVED_TASKS) ?? jsonEncode([]));
+    var castedToList = json.decode(values);
+    collabAllTasks.clear();
+    collabAllTasks = castedToList;
+    collabTaskList =
+        collabAllTasks[currentCollabRunningProjectId.value]["project-body"];
+    generateList();
+    update();
+  }
+
+  Future<bool> getSYNC_MY_DATA() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool values = (prefs.getBool(SYNC_MY_DATA));
+    return values;
+  }
+
+  Future<bool> getLOGIN_STATUS() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool values = (prefs.getBool(LOGIN_STATUS));
+    return values;
   }
 
   void addToDescription({String comment, int parent, int childkey}) {
@@ -653,6 +716,9 @@ class ColllaborationState extends GetxController {
   // Send task with Acknowledgements
   void sendCollaborationTaskToServer() {
     taskState.setIsSaving(true);
+
+    // Save locally
+    storeValuesLocally();
 
     String id = returnSingleTaskItem()["id"].toString();
     String dateTime = returnSingleTaskItem()["date-time"].toString();

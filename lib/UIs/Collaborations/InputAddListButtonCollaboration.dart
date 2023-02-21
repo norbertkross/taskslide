@@ -58,8 +58,8 @@ class _InputAddListButtonCollaborationState
                                     colllaborationState.addNewProject(
                                       userid:userid ,
                                         name: input, time: dateTime.toString());
-                                    colllaborationState
-                                        .storeLocalValuesFromProjectHome();
+                                    // colllaborationState
+                                    //     .storeLocalValuesFromProjectHome();
                                     colllaborationState
                                         .showInputToCreateTask(false);
                                   });
@@ -100,8 +100,7 @@ class _InputAddListButtonCollaborationState
                                   colllaborationState.addNewProject(
                                     userid: userid,
                                       name: input, time: dateTime.toString());
-                                  colllaborationState
-                                      .storeLocalValuesFromProjectHome();
+                                  
                                   colllaborationState
                                       .showInputToCreateTask(false);
                                 });

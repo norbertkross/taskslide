@@ -289,7 +289,6 @@ class TaskState extends GetxController {
   }
 
   void getAndSetTaskValues({bool isInit}) async {
-    debugPrint("HRHHRHRH");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var values = (prefs.getString('main-list') ?? jsonEncode([]));
     var castedToList = json.decode(values);
