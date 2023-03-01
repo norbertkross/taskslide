@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:taskslide/UIs/Extras/offline-switch.dart';
 import 'package:taskslide/state/collaborationState.dart';
@@ -47,7 +46,16 @@ class _SecondaryAppBarState extends State<SecondaryAppBar> {
                                 ),
                               ),
                             ),
-                          ),                        
+                          ),  
+                           SizedBox(
+                            height: 8,
+                          ),
+
+                          Obx(
+                            ()=> Text("offline",style: TextStyle(
+                              color: colllaborationState.isOnline.value ==true? Colors.transparent:  Colors.red,
+                            ),),
+                          ),                      
 
                       SizedBox(
                         height: 12,
@@ -58,23 +66,7 @@ class _SecondaryAppBarState extends State<SecondaryAppBar> {
                         tooltip: "People",
                         icon: Icon(
                           Icons.people,color: Theme.of(context).disabledColor,), 
-                        onPressed: (){
-                          //taskState.sendUpdateData();
-                          // taskState.joinTaskRoomToUpdateAndSendData(
-                          //   data: taskState.returnSingleTaskItem());
-                          //taskState.emitSingleTask();
-                          //taskState.saveWholeProjectOnline();
-                           //taskState.sendUpdateData();
-                           //taskState.getAllMyTask(email: "norbertaberor@gmail.com");
-                          //taskState.getCollaborations(email: "eugene@mail.yup");
-                         // taskState.emitWithAcknowledgement();
-                          // taskState.hasInternetConnection().then((value) => {
-                          //   print("Connection State: $value")
-                          // }).catchError((onError)=>{
-                          //   print(onError)
-                          // });
-
-                          }
+                        onPressed: (){}
                         ),
 
                         SizedBox(height: 10,),

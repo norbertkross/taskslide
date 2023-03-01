@@ -63,7 +63,7 @@ class _LoginEmailPasswordState extends State<LoginEmailPassword> {
           ),
           NotificationListener<OverscrollIndicatorNotification>(
             onNotification: (__) {
-              __.disallowGlow();
+              __.disallowIndicator();
               return false;
             },
             child: ListView(

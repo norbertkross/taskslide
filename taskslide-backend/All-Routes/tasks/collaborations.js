@@ -9,7 +9,6 @@ const collaborations = express.Router()
     getCollaboration(req,res);
  })
 
-
  async function  getCollaboration(req,res) {
    
    var body = req.body

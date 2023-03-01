@@ -251,7 +251,6 @@ class _CollaborationTaskEditorState extends State<CollaborationTaskEditor> {
                         ListView(
                           children: [
                             // Main List Body
-
                             Wrap(
                               alignment:
                                   mq.width < smallDevice && mq.width > 550.0

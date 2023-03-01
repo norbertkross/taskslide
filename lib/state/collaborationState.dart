@@ -12,8 +12,11 @@ import 'package:dio/dio.dart' as packageDio;
 
 import 'package:taskslide/UIs/CustomDialogBody/CustomBodyDialog.dart';
 import 'package:taskslide/state/BaseUrl.dart';
+import 'package:taskslide/state/simples.dart';
 import 'package:taskslide/state/state.dart';
 import 'package:uuid/uuid.dart';
+
+import '../main.dart';
 
 class ColllaborationState extends GetxController {
 // DECLARATIONS
@@ -55,15 +58,14 @@ class ColllaborationState extends GetxController {
 
   var isSearching = false.obs;
 
-  final taskState = Get.put(TaskState());
+  var isOnline = false.obs;
 
-  final String SAVED_TASKS = "SAVED_TASKS";
-  final String LOGIN_STATUS = "LOGIN_STATUS";
-  final String SYNC_MY_DATA = "SYNC_MY_DATA";
+  final taskState = Get.put(TaskState());
 
   @override
   void onInit() {
     listenOnEvent();
+    getSYNC_MY_DATA();
     super.onInit();
   }
 
@@ -196,7 +198,6 @@ class ColllaborationState extends GetxController {
   void setSubChildrenPopUpIndex(newint, parentkey) {
     subChildrenPopUpIndex = newint;
     childListCurrentTouchParentKey = parentkey;
-    //generateList();
     update();
   }
 
@@ -373,8 +374,6 @@ class ColllaborationState extends GetxController {
       collabAllTasks.add(addMore);
     }
     update();
-    // debugPrint("UPDATED... ${collabAllTasks.length}");
-
     newProjectCreated(collabAllTasks[collabAllTasks.length - 1]);
   }
 
@@ -470,18 +469,6 @@ class ColllaborationState extends GetxController {
     generateList();
   }
 
-  // void storeLocalValuesFromProjectHome() async {
-  //   try {
-  //     SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     var myToJson = jsonEncode(collabAllTasks);
-  //     await prefs.setString('main-list', myToJson);
-  //     //print(myToJson) ;
-
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
-
   searchForPattern(String pattern) {
     //  ^([a-zA-Z]+)$.*\b(?=[a-zA-Z]*w)(?=[a-zA-Z]*o)(?=[a-zA-Z]*r)(?=[a-zA-Z]*d)[a-zA-Z]+$
 
@@ -515,25 +502,32 @@ class ColllaborationState extends GetxController {
   }
 
   void poulateCollabAllTasks(List incomingList) {
+    print("INCOM LST: ${incomingList.length}");
     if (incomingList != null) {
+          print("INCOM LST not null: ${incomingList.length}");
+
       collabAllTasks.clear();
       collabAllTasks = incomingList;
       collabTaskList =
           collabAllTasks[currentCollabRunningProjectId.value]["project-body"];
       generateList();
-      //update();
+      // update();
+                print("All tsk len: ${collabAllTasks.length}");
+
     }
+          update();
+
   }
 
   /// Get all Tasks that the user is collaborating in AS a STREAM
   //Stream<List>
-  Future getCollaborationsStream({String email}) async {
-    
+  Future getCollaborationsStream(
+      {String email, @required BuildContext context}) async {
     bool syncMyData = await getSYNC_MY_DATA();
     bool userHasLoggenIn = await getLOGIN_STATUS();
 
-    if (syncMyData == true) {
-      if (userHasLoggenIn == true) {
+    if (syncMyData != true) {
+      if (userHasLoggenIn != true) {
         // if SYNCING is ON and the USER is LOG IN get online data
         packageDio.Dio dio = packageDio.Dio();
         var url = BaseUrl.baseUrl + '/collaborations';
@@ -549,20 +543,29 @@ class ColllaborationState extends GetxController {
           return [];
         });
 
+        // getAndSetTaskValues();
+        // List onlineOfflineMerger = SimpleMethods.mergeProjectsAndUpdate(
+        //     onlineProjects: response.data.length == 0 ? [] : response.data,
+        //     locallProjects: collabAllTasks);
+
+        // debugPrint("merger: ${onlineOfflineMerger.length}");
+
+        // poulateCollabAllTasks(onlineOfflineMerger);
+        // return response.data.length == 0 ? [] : response.data;
+
         poulateCollabAllTasks(response.data.length == 0 ? null : response.data);
         return response.data.length == 0 ? [] : response.data;
       } else {
         debugPrint("LOCAL 2");
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (builder) => MyApp()), (_) => false);
         // we can update tasks if the user is also not logged in, so just return locally saved data
         getAndSetTaskValues();
-        poulateCollabAllTasks(collabAllTasks);
         return collabAllTasks;
       }
     } else {
-      debugPrint("LOCAL 1");
       // If the user has turn syncing of just return any locally saved data available
       getAndSetTaskValues();
-      poulateCollabAllTasks(collabAllTasks);
       return collabAllTasks;
     }
   }
@@ -575,49 +578,29 @@ class ColllaborationState extends GetxController {
     }
   }
 
-  void storeValuesLocally() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    try {
-      var myToJson = jsonEncode(collabAllTasks);
-      await prefs.setString(SAVED_TASKS, myToJson);
-    } catch (e) {}
-  }
-
-  void setSYNC_MY_DATA(bool value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    try {
-      await prefs.setBool(SYNC_MY_DATA, value);
-    } catch (e) {}
-  }
-
-  void setLOGIN_STATUS(bool value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    try {
-      await prefs.setBool(LOGIN_STATUS, value);
-    } catch (e) {}
-  }
 
   void getAndSetTaskValues({bool isInit}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var values = (prefs.getString(SAVED_TASKS) ?? jsonEncode([]));
+    var values = (prefs.getString(SimpleMethods.SAVED_TASKS) ?? jsonEncode([]));
     var castedToList = json.decode(values);
     collabAllTasks.clear();
     collabAllTasks = castedToList;
-    collabTaskList =
-        collabAllTasks[currentCollabRunningProjectId.value]["project-body"];
+    // collabTaskList =
+    //     collabAllTasks[currentCollabRunningProjectId.value]["project-body"];
     generateList();
     update();
   }
 
   Future<bool> getSYNC_MY_DATA() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool values = (prefs.getBool(SYNC_MY_DATA));
+    bool values = (prefs.getBool(SimpleMethods.SYNC_MY_DATA));
+    isOnline.value = values;
     return values;
   }
 
   Future<bool> getLOGIN_STATUS() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool values = (prefs.getBool(LOGIN_STATUS));
+    bool values = (prefs.getBool(SimpleMethods.LOGIN_STATUS));
     return values;
   }
 
@@ -643,74 +626,10 @@ class ColllaborationState extends GetxController {
       //collabAllTasks
       collabAllTasks[currentCollabRunningProjectId.value]["project-body"] =
           newData;
-      print("New Recieved: ${newData}");
-      print("New Data Recieved");
+
       generateList();
       update();
     }
-  }
-
-  Map<String, dynamic> returnSingleTaskItem() {
-    var id = collabAllTasks.length > 0
-        ? collabAllTasks[currentCollabRunningProjectId.value]["id"].toString()
-        : "";
-
-    var creator = collabAllTasks.length > 0
-        ? collabAllTasks[currentCollabRunningProjectId.value]["creator"]
-            .toString()
-        : "";
-
-    var projectName = collabAllTasks.length > 0
-        ? collabAllTasks[currentCollabRunningProjectId.value]["project-name"]
-            .toString()
-        : "";
-
-    var dateTime = collabAllTasks.length > 0
-        ? collabAllTasks[currentCollabRunningProjectId.value]["date-time"]
-            .toString()
-        : "";
-
-    var dateStart = collabAllTasks.length > 0
-        ? collabAllTasks[currentCollabRunningProjectId.value]["date-start"]
-            .toString()
-        : "";
-
-    var dateEnd = collabAllTasks.length > 0
-        ? collabAllTasks[currentCollabRunningProjectId.value]["date-end"]
-            .toString()
-        : "";
-
-    var people = collabAllTasks.length > 0
-        ? collabAllTasks[currentCollabRunningProjectId.value]["people"]
-        : "";
-
-    var peopleEncoded = collabAllTasks.length > 0 ? people : "";
-
-    var projectBody = collabAllTasks.length > 0
-        ? collabAllTasks[currentCollabRunningProjectId.value]["project-body"]
-        : "";
-
-    var accessType = collabAllTasks.length > 0
-        ? collabAllTasks[currentCollabRunningProjectId.value]["access_type"]
-        : "";
-
-    var projectBodyEncoded = collabAllTasks.length > 0 ? projectBody : "";
-
-    Map<String, dynamic> queryParams = {
-      "id": id,
-      'creator': creator,
-      'project-name': projectName,
-      'date-time': dateTime,
-      'date-start': dateStart,
-      'date-end': dateEnd,
-      'people': peopleEncoded,
-      'project-body': projectBodyEncoded,
-      'done': false,
-      'last_editted': DateTime.now().toIso8601String(),
-      "access_type": accessType,
-    };
-
-    return queryParams;
   }
 
   // Send task with Acknowledgements
@@ -718,13 +637,19 @@ class ColllaborationState extends GetxController {
     taskState.setIsSaving(true);
 
     // Save locally
-    storeValuesLocally();
+    SimpleMethods.storeValuesLocally(collabAllTasks);
 
-    String id = returnSingleTaskItem()["id"].toString();
-    String dateTime = returnSingleTaskItem()["date-time"].toString();
-    String creator = returnSingleTaskItem()["creator"].toString();
-
-    Map<String, dynamic> newTaskList = returnSingleTaskItem();
+    String id = SimpleMethods.returnSingleTaskItem(
+            collabAllTasks, currentCollabRunningProjectId.value)["id"]
+        .toString();
+    String dateTime = SimpleMethods.returnSingleTaskItem(
+            collabAllTasks, currentCollabRunningProjectId.value)["date-time"]
+        .toString();
+    String creator = SimpleMethods.returnSingleTaskItem(
+            collabAllTasks, currentCollabRunningProjectId.value)["creator"]
+        .toString();
+    Map<String, dynamic> newTaskList = SimpleMethods.returnSingleTaskItem(
+        collabAllTasks, currentCollabRunningProjectId.value);
 
     taskState.socket.emitWithAck(
       'join_a_taskroom', newTaskList,
