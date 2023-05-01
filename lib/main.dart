@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taskslide/UIs/login-and-onboarding/loginHome.dart';
 import 'package:taskslide/state/state.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main()async{
+  
+  WidgetsFlutterBinding.ensureInitialized(); 
+
+  await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
   runApp(GetMaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
 }
 
@@ -68,13 +76,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// clipboard-list
-// home
-// list-checks
-// users
-// user
-// pencil
-// calendar-range
-// trash-2
-// moon
-// sun
+// Platform  Firebase App Id
+// web       1:460148246238:web:8e0b8ada0ed39ecca9e44f
+// android   1:460148246238:android:4a212cab6b4695d8a9e44f
+// ios       1:460148246238:ios:4a05dc117d224800a9e44f

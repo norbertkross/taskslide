@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:taskslide/UIs/home/body.dart';
 import 'package:taskslide/UIs/login-and-onboarding/loginBackground.dart';
 import 'package:taskslide/state/state.dart';
@@ -19,6 +22,40 @@ class _LoginEmailPasswordState extends State<LoginEmailPassword> {
   bool registerHide = true;
 
   bool isLoading = false;
+  GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/contacts.readonly',
+    ],
+  );
+
+saveIdToDiskAndGoHome(String email) {
+  taskState.setUserEmailasID(email, context);
+  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (builder) => Body()), (_) => false);
+}
+
+  Future<void> _handleSignIn() async {
+    try {
+     //await _googleSignIn.signIn();
+      GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
+
+      Map<String,dynamic> user = {
+        "id": googleSignInAccount.id,
+        "email": googleSignInAccount.email,
+        "display_name": googleSignInAccount.displayName,
+        "picture_url": googleSignInAccount.photoUrl,
+        "last_signed_in":DateTime.now().toIso8601String(),
+      };
+
+      // Todo Hit a sign in endpoint
+
+     saveIdToDiskAndGoHome(googleSignInAccount.email);
+           print("Success: ${googleSignInAccount.email}");
+
+    } catch (error) {
+      print("ERROR: $error");
+    }
+  }
 
   TextEditingController loginUsernameController = TextEditingController();
   String get loginUserName => loginUsernameController.text;
@@ -58,9 +95,12 @@ class _LoginEmailPasswordState extends State<LoginEmailPassword> {
       key: scaffoldKey,
       body: Stack(
         children: [
-          Container(
-            child: LoginBackround(),
-          ),
+            Positioned(
+              // left: 0.0,
+              // right: 0.0,
+              // top: 0,
+              child: Center(child: LoginBackround())),
+          
           NotificationListener<OverscrollIndicatorNotification>(
             onNotification: (__) {
               __.disallowIndicator();
@@ -69,85 +109,95 @@ class _LoginEmailPasswordState extends State<LoginEmailPassword> {
             child: ListView(
               children: [
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * .40,
+                  height: MediaQuery.of(context).size.height * .50,
                 ),
-                Center(
-                  child: Wrap(
-                    children: [
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: CupertinoButton(
-                            child: Text(
-                              "login",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 22,
-                                  color: Theme.of(context).accentColor),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                isLogin = true;
-                              });
-                            }),
-                      ),
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: CupertinoButton(
-                            child: Text(
-                              "Register",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 22,
-                                  color: Theme.of(context).accentColor),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                isLogin = false;
-                              });
-                            }),
-                      ),
-                    ],
-                  ),
-                ),
-                isLogin == true ? emailPassword() : registerEmailPassword(),
+                // Center(
+                //   child: Wrap(
+                //     children: [
+                //       MouseRegion(
+                //         cursor: SystemMouseCursors.click,
+                //         child: CupertinoButton(
+                //             child: Text(
+                //               "login",
+                //               style: TextStyle(
+                //                   fontWeight: FontWeight.w300,
+                //                   fontSize: 22,
+                //                   color: Theme.of(context).accentColor),
+                //             ),
+                //             onPressed: () {
+                //               setState(() {
+                //                 isLogin = true;
+                //               });
+                //             }),
+                //       ),
+                //       MouseRegion(
+                //         cursor: SystemMouseCursors.click,
+                //         child: CupertinoButton(
+                //             child: Text(
+                //               "Register",
+                //               style: TextStyle(
+                //                   fontWeight: FontWeight.w300,
+                //                   fontSize: 22,
+                //                   color: Theme.of(context).accentColor),
+                //             ),
+                //             onPressed: () {
+                //               setState(() {
+                //                 isLogin = false;
+                //               });
+                //             }),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // isLogin == true ? emailPassword() : registerEmailPassword(),
                 loginbutton(),
                 SizedBox(
                   height: 20,
                 ),
-                Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      // N().to(context, route: ForgotPassword());
-                    },
-                    child: Text(
-                      "Forgot Password?",
-                      style: TextStyle(color: Theme.of(context).accentColor),
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onLongPressEnd: (_) {
-                        print("onLongPressUp");
-                        // N().to(context, route: LoginAdmin());
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(18.0),
-                        child: Icon(
-                          Icons.shield,
-                          color: Theme.of(context)
-                              .unselectedWidgetColor
-                              .withOpacity(.4),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
+                // Center(
+                //   child: GestureDetector(
+                //     onTap: () {
+                //       // N().to(context, route: ForgotPassword());
+                //     },
+                //     child: Text(
+                //       "Forgot Password?",
+                //       style: TextStyle(color: Theme.of(context).accentColor),
+                //     ),
+                //   ),
+                // ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.end,
+                //   children: [
+                //     GestureDetector(
+                //       onLongPressEnd: (_) {
+                //         print("onLongPressUp");
+                //         // N().to(context, route: LoginAdmin());
+                //       },
+                //       child: Padding(
+                //         padding: const EdgeInsets.all(18.0),
+                //         child: Icon(
+                //           Icons.shield,
+                //           color: Theme.of(context)
+                //               .unselectedWidgetColor
+                //               .withOpacity(.4),
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // )
               ],
             ),
-          )
+          ),
+         Align(
+          alignment: Alignment.bottomCenter,
+           child: Padding(
+             padding:  EdgeInsets.only(bottom:Platform.isAndroid?  40 :60.0),
+             child: Text(
+                          "Securely login to continue",
+                          style: TextStyle(color: Theme.of(context).primaryColor),
+                        ),
+           ),
+         ), 
         ],
       ),
     );
@@ -287,7 +337,8 @@ class _LoginEmailPasswordState extends State<LoginEmailPassword> {
             onTap: isLoading == true
                 ? null
                 : () {
-                    validateAndSend();
+                    _handleSignIn();
+                    // validateAndSend();
                   },
             child: Container(
               margin: EdgeInsets.all(10),
@@ -305,22 +356,27 @@ class _LoginEmailPasswordState extends State<LoginEmailPassword> {
                 borderRadius: BorderRadius.circular(10),
                 child: Container(
                   color: Theme.of(context).canvasColor,
-                  child: Column(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
+
+                      Image.asset("assets/google-logo-9808.png",height: 25,width: 25,),
+
                       Container(
-                        color: Theme.of(context).primaryColor,
+                        color: Theme.of(context).cardColor,
                         height: 60,
                         child: Center(
                             child: isLoading == true
                                 ? CupertinoActivityIndicator()
                                 : Text(
-                                    isLogin == true ? "Login" : "Register",
+                                    "Sign in with Google",
                                     style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20),
+                                        color: Theme.of(context).disabledColor.withOpacity(.3),
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 18),
                                   )),
-                      )
+                      ),
+                      SizedBox(width: 20,),
                     ],
                   ),
                 ),

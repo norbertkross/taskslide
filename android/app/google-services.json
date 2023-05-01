@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "460148246238",
+    "project_id": "taskslide-71164",
+    "storage_bucket": "taskslide-71164.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460148246238:android:4a212cab6b4695d8a9e44f",
+        "android_client_info": {
+          "package_name": "com.example.taskslide"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "460148246238-6rpji9014mu4k9kf141da9ccj9ekkcnn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG88gg5O6JEZ_Q8xvgVvndVcPNt1yE9-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "460148246238-6rpji9014mu4k9kf141da9ccj9ekkcnn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

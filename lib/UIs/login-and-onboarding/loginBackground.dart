@@ -23,17 +23,41 @@ class _LoginBackroundState extends State<LoginBackround> {
                 child: Column(
                   children: [
                     SizedBox(
-                      height: MediaQuery.of(context).size.height * .25,
+                      height: MediaQuery.of(context).size.height * .15,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(1.0),
                       child: Center(
-                          child: Text(
-                        "Login",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 34),
+                          child: Column(
+                        children: [
+
+                          Container(
+                            height: 60,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              image: DecorationImage(image: AssetImage("assets/appicon.png",),fit: BoxFit.scaleDown)
+                            ),
+                          ),
+                                                    SizedBox(
+                            height: 8,
+                          ),
+
+                          Wrap(
+                            children: [
+                              Text(
+                                "Taskslide",
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 22),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8,),
+                          Text(
+                            "organising made simple",
+                            style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w400, fontSize: 13),
+                          ),
+                        ],
                       )),
                     ),
                   ],
@@ -57,35 +81,20 @@ class WaveClipper extends CustomClipper<Path> {
     //path.lineTo(size.width*(20/100), (size.height-(size.height*(50/100))));
 
     // {size.width/4 , (size.height-(size.height*(50/100)))-(size.height*(35/100))}
-    var firstControlPoint = Offset(
-        size.width / 4.5,
-        (size.height - (size.height * (50 / 100))) -
-            (size.height * (15 / 100)));
+    var firstControlPoint = Offset(size.width / 4.5, (size.height - (size.height * (50 / 100))) - (size.height * (15 / 100)));
     // {size.width/2.5 , (size.height-(size.height*(50/100)))-(size.height*(20/100)) }
-    var firstEndPoint = Offset(
-        size.width / 1.6,
-        (size.height - (size.height * (50 / 100))) -
-            (size.height * (10 / 100)));
+    var firstEndPoint = Offset(size.width / 1.6, (size.height - (size.height * (50 / 100))) - (size.height * (10 / 100)));
     // path
-    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
-        firstEndPoint.dx, firstEndPoint.dy);
+    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy, firstEndPoint.dx, firstEndPoint.dy);
 
     //  {size.width *(.75) , size.height-(size.height*(50/100)) }
-    var secondControlPoint =
-        Offset(size.width * (.85), size.height - (size.height * (57 / 100)));
+    var secondControlPoint = Offset(size.width * (.85), size.height - (size.height * (57 / 100)));
     // {size.width , (size.height-(size.height*(50/100)))-(size.height*(35/100)) }
-    var secondEndPoint = Offset(
-        size.width,
-        (size.height - (size.height * (50 / 100))) -
-            (size.height * (15 / 100)));
+    var secondEndPoint = Offset(size.width, (size.height - (size.height * (50 / 100))) - (size.height * (15 / 100)));
     // path
-    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
-        secondEndPoint.dx, secondEndPoint.dy);
+    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy, secondEndPoint.dx, secondEndPoint.dy);
 
-    path.lineTo(
-        size.width,
-        (size.height - (size.height * (50 / 100))) -
-            (size.height * (10 / 100)));
+    path.lineTo(size.width, (size.height - (size.height * (50 / 100))) - (size.height * (10 / 100)));
     path.lineTo(size.width, 0.0);
 
     path.close();
