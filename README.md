@@ -1,16 +1,43 @@
-# taskslide
+# Taskslide
 
-A new Flutter project.
+Taskslide is a project management app currently being developed that helps users to keep track of their tasks and projects in real time.
 
-## Getting Started
+## App Screenshots
+ 
+<br>
+<br>
+<br>
 
-This project is a starting point for a Flutter application.
+![DemoImage](https://raw.githubusercontent.com/norbertkross/taskslide/main/imgs/img2.jpeg)
 
-A few resources to get you started if this is your first Flutter project:
+<br>
+<br>
+<br>
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+![DemoImage](https://raw.githubusercontent.com/norbertkross/taskslide/main/imgs/img1.jpeg)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<br>
+<br>
+<br>
+
+![DemoImage](https://raw.githubusercontent.com/norbertkross/taskslide/main/imgs/img3.jpeg)
+
+<br>
+<br>
+<br>
+
+![DemoImage](https://raw.githubusercontent.com/norbertkross/taskslide/main/imgs/img4.jpeg)
+
+<br>
+<br>
+<br>
+
+![DemoImage](https://raw.githubusercontent.com/norbertkross/taskslide/main/imgs/img5.jpeg)
+
+<br>
+<br>
+<br>
+
+![DemoImage](https://raw.githubusercontent.com/norbertkross/taskslide/main/imgs/img6.jpeg)
+
+
